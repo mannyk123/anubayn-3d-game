@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="ANUBAYN" />
   <meta name="theme-color" content="#04010a" />
-  <title>ANUBAYN // 3D Sonic Portal</title>
+  <title>ANUBAYN // 3D Guitar Hero Portal</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -37,7 +37,7 @@
       z-index: 1;
     }
     .pill-glass {
-      background: rgba(10, 6, 24, 0.78);
+      background: rgba(10, 6, 24, 0.82);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.16);
@@ -63,7 +63,7 @@
 
   <!-- ==================== CLEAN TOP CONTROL BAR (iPhone Safe Area) ==================== -->
   <div class="fixed top-safe left-2.5 right-2.5 z-20 flex flex-wrap items-center justify-between gap-1.5 pointer-events-none">
-    <!-- Left: Pause Button + Score + Combo -->
+    <!-- Left: Pause + Score + Streak Multiplier -->
     <div class="pill-glass rounded-full px-2.5 py-1 flex items-center gap-2 pointer-events-auto shadow-lg">
       <button id="pauseBtn" class="ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-white/10 text-white border border-white/20">
         ⏸ PAUSE
@@ -76,111 +76,104 @@
       </div>
     </div>
 
-    <!-- Right: Easy/Med/Hard + Vibe + Sing + Music/Spotify Button -->
+    <!-- Right: Easy/Med/Hard + Song Selector + Sing + Load MP3 -->
     <div class="pill-glass rounded-full p-1 flex items-center gap-1 pointer-events-auto shadow-lg">
       <button id="diffBtn" class="ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-emerald-500/25 text-emerald-200 border border-emerald-400/50">
         🟢 EASY
       </button>
       <button id="vibeBtn" class="ui-btn rounded-full px-2.5 py-1 text-xs font-bold bg-cyan-500/25 text-cyan-200 border border-cyan-400/40">
-        🎵 PLAYA
+        🎵 SONG 1: PLAYA
       </button>
       <button id="micQuickBtn" class="ui-btn rounded-full px-2.5 py-1 text-xs font-bold text-rose-200 border border-rose-400/40 bg-rose-500/15">
         🎙️ SING
       </button>
       <button id="musicHubBtn" class="ui-btn rounded-full px-2.5 py-1 text-xs font-bold text-amber-200 border border-amber-400/40 bg-amber-500/15">
-        🎧 MUSIC
+        📂 OWN SONG
       </button>
     </div>
   </div>
 
-  <!-- ==================== DOCKED SPOTIFY MINI-PLAYER (When User Loads a Spotify Link) ==================== -->
-  <div id="spotifyDock" class="hidden fixed left-2.5 right-2.5 z-20 flex items-center gap-1.5 pointer-events-auto" style="top: max(54px, calc(env(safe-area-inset-top) + 46px));">
-    <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl border border-emerald-400/40 bg-black/80">
-      <iframe id="spotifyIframe" src="" width="100%" height="80" frameBorder="0"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-    </div>
-    <button id="closeSpotifyDockBtn" class="pill-glass rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold text-white shrink-0">
-      ✕
-    </button>
-  </div>
-
-  <!-- ==================== SPOTIFY / APPLE MUSIC & SING-ALONG HUB MODAL ==================== -->
+  <!-- ==================== MUSIC & SING-ALONG MODAL ==================== -->
   <div id="musicModal" class="hidden fixed inset-0 z-30 bg-black/80 backdrop-blur-md flex items-center justify-center p-3.5 overflow-y-auto">
     <div class="pill-glass rounded-3xl p-4 sm:p-5 max-w-md w-full border border-white/20 shadow-2xl flex flex-col gap-3.5 my-auto">
       <div class="flex items-center justify-between border-b border-white/10 pb-2">
         <div class="flex items-center gap-2">
-          <span class="text-lg">🎧</span>
+          <span class="text-lg">🎸</span>
           <h2 class="text-xs sm:text-sm font-black tracking-wider uppercase text-cyan-300">
-            MUSIC SOURCES & SING-ALONG
+            HOW TO PLAY & LOAD SONGS
           </h2>
         </div>
         <button id="closeModalBtn" class="ui-btn rounded-full px-3 py-1 text-xs font-bold bg-emerald-500/30 text-emerald-100 border border-emerald-400/50">
-          ▶ PLAY GAME
+          ▶ RESUME GAME
         </button>
       </div>
 
-      <!-- 1. Paste Any Spotify Link (Embeds Spotify Player Right Inside the Game!) -->
-      <div class="bg-white/5 rounded-2xl p-3 border border-white/10 flex flex-col gap-2">
-        <span class="text-xs font-extrabold text-emerald-300 uppercase tracking-wider">
-          🟢 OPTION 1: EMBED ANY SPOTIFY TRACK OR PLAYLIST
+      <!-- How the Game Works -->
+      <div class="bg-white/5 rounded-2xl p-3 border border-white/10 flex flex-col gap-1.5">
+        <span class="text-xs font-extrabold text-cyan-300 uppercase tracking-wider">
+          ⚡ 1. YOU PLAY THE MELODY (GUITAR HERO STYLE)
         </span>
         <p class="text-xs text-slate-300 leading-snug">
-          Paste any Spotify song or playlist link below to dock a live <b>Spotify Mini-Player</b> right at the top of the stage, or play Spotify/Apple Music in the background on your iPhone!
+          • Glowing triangle notes fly out of the 3D <b>ANUBAYN Δ</b> portal down to the 7 <b>A-N-U-B-A-Y-N</b> letters.<br/>
+          • <b>Tap or slide your thumb</b> onto the glowing letter right as the note reaches the ring! When you hit it, <b>YOU play the lead guitar/synth melody</b> of the song. If you miss it, the melody drops out!
         </p>
-        <div class="flex items-center gap-1.5">
-          <input id="spotifyUrlInput" type="text" placeholder="Paste Spotify song/playlist link..."
-                 class="flex-1 bg-slate-950/90 text-white text-xs rounded-xl px-3 py-2 border border-white/15 outline-none focus:border-emerald-400 select-text"
-                 style="user-select: text; -webkit-user-select: text;" />
-          <button id="loadSpotifyEmbedBtn" class="ui-btn rounded-xl px-3 py-2 text-xs font-extrabold bg-emerald-500/35 text-emerald-100 border border-emerald-400 shrink-0">
-            DOCK 🟢
-          </button>
-        </div>
-        <button id="bgMusicModeBtn" class="ui-btn rounded-xl py-2 px-3 text-xs font-extrabold bg-cyan-500/20 text-cyan-200 border border-cyan-400/40 w-full">
-          🔊 GAME SYNTH AUDIO: ON (TAP TO MUTE FOR BACKGROUND SPOTIFY / APPLE MUSIC)
+      </div>
+
+      <!-- Full Song File Loader (Plays Full Song & Syncs Highway!) -->
+      <div class="bg-white/5 rounded-2xl p-3 border border-white/10 flex flex-col gap-2">
+        <span class="text-xs font-extrabold text-amber-300 uppercase tracking-wider">
+          📂 2. PLAY FULL SONGS FROM YOUR IPHONE
+        </span>
+        <p class="text-xs text-slate-300 leading-snug">
+          <i>Why Spotify cut off after 30s:</i> Spotify & Apple Music lock their web players to 30-second previews outside their apps and block games from reading the beat.<br/>
+          <b>To play a full song from start to finish:</b> Load any <b>MP3 / M4A / WAV</b> song saved in your iPhone <b>Files</b> app! The game reads the song's real bass & melody beats, spawns notes down the highway, and muffles the song if you miss notes—just like Guitar Hero!
+        </p>
+        <button id="modalLoadMp3Btn" class="ui-btn rounded-xl py-2.5 px-3 text-xs font-extrabold bg-amber-500/30 text-amber-100 border border-amber-400 w-full">
+          📂 CHOOSE MP3 / M4A / WAV FILE FROM PHONE
+        </button>
+        <button id="backToBuiltInBtn" class="hidden ui-btn rounded-xl py-2 px-3 text-xs font-bold bg-cyan-500/25 text-cyan-200 border border-cyan-400/50 w-full">
+          🔄 SWITCH BACK TO BUILT-IN ANUBAYN SONGS
         </button>
       </div>
 
-      <!-- 2. How Singing Works + Room Mic Sync -->
+      <!-- Room Audio / Speaker Beat Sync (For Spotify / Apple Music Playing on a Speaker) -->
       <div class="bg-white/5 rounded-2xl p-3 border border-white/10 flex flex-col gap-2">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-extrabold text-rose-300 uppercase tracking-wider">🎙️ OPTION 2: LIVE SINGING & ROOM MIC</span>
+          <span class="text-xs font-extrabold text-rose-300 uppercase tracking-wider">
+            🎙️ 3. SING OR SYNC TO A SPEAKER
+          </span>
           <button id="modalMicToggleBtn" class="ui-btn rounded-full px-3 py-1 text-xs font-bold bg-rose-500/30 text-rose-100 border border-rose-400">
             TURN MIC ON
           </button>
         </div>
         <p class="text-xs text-slate-300 leading-snug">
-          • <b>Sing or Hum:</b> Displays your live vocal note inside the 3D <b>ANUBAYN Δ</b> portal and bends the liquid chrome.<br/>
-          • <b>Vocal Star Power:</b> Belt out a note to trigger <b>2x Points</b> and auto-catch incoming notes!<br/>
-          • <i>iPhone Tip:</i> iOS pauses background apps when the mic is active—use Mic Mode when singing out loud or when music is playing on a speaker in the room.
+          • <b>Sing into Mic:</b> Singing or humming shows your vocal note inside the 3D Δ logo and activates <b>Vocal Star Power</b> (auto-catches notes for 2x points!).<br/>
+          • <b>Playing Spotify/Apple Music on another speaker/TV/computer?</b> Tap below so your iPhone mic listens to the room speaker and spawns notes to the live beat!
         </p>
+        <button id="roomSpeakerSyncBtn" class="ui-btn rounded-xl py-2 px-3 text-xs font-extrabold bg-white/10 text-slate-200 border border-white/20 w-full">
+          📡 SPEAKER BEAT-SYNC MODE (MUTE GAME SYNTH): OFF
+        </button>
       </div>
-
-      <!-- 3. Load Any Audio File / Voice Memo from iPhone -->
-      <button id="modalLoadMp3Btn" class="ui-btn rounded-2xl py-2.5 px-3 text-xs font-extrabold bg-amber-500/25 text-amber-200 border border-amber-400/50 w-full">
-        📂 OPTION 3: LOAD MP3 / WAV / VOICE MEMO FROM IPHONE FILES
-      </button>
     </div>
   </div>
 
   <script>
     /*************************************************************************
      * 1. MONOLITHIC, SEAMLESS 3D ANUBAYN Δ SYMBOL GEOMETRY (From IMG_6149)
-     *    - Single continuous 10-vertex closed polygon (ZERO internal seam lines!)
      *************************************************************************/
     const DELTA_MONOLITH_VERTS = [
-      [ 0.00,  0.92], // 0: Outer Top Apex
-      [ 0.88, -0.76], // 1: Outer Bottom-Right Corner
-      [ 0.25, -0.76], // 2: Inner Bottom-Right Portal Tip (lower)
-      [ 0.34, -0.57], // 3: Inner Bottom-Right Portal Tip (angled bevel!)
-      [ 0.56, -0.57], // 4: Inner Bottom-Right Corner
-      [ 0.00,  0.50], // 5: Inner Top Apex
-      [-0.56, -0.57], // 6: Inner Bottom-Left Corner
-      [-0.34, -0.57], // 7: Inner Bottom-Left Portal Tip (angled bevel!)
-      [-0.25, -0.76], // 8: Inner Bottom-Left Portal Tip (lower)
-      [-0.88, -0.76]  // 9: Outer Bottom-Left Corner
+      [ 0.00,  0.92],
+      [ 0.88, -0.76],
+      [ 0.25, -0.76],
+      [ 0.34, -0.57],
+      [ 0.56, -0.57],
+      [ 0.00,  0.50],
+      [-0.56, -0.57],
+      [-0.34, -0.57],
+      [-0.25, -0.76],
+      [-0.88, -0.76]
     ];
 
-    // The 7 Custom 3D Sculpted A-N-U-B-A-Y-N Fret Keys at the bottom of the Highway (From IMG_6150)
     const ANUBAYN_KEYS = [
       {
         char: 'A',
@@ -230,8 +223,8 @@
     for (let i = 0; i < DELTA_MONOLITH_VERTS.length; i++) {
       const p0 = DELTA_MONOLITH_VERTS[i];
       const p1 = DELTA_MONOLITH_VERTS[(i + 1) % DELTA_MONOLITH_VERTS.length];
-      for (let k = 0; k < 160; k++) {
-        const t = k / 160;
+      for (let k = 0; k < 150; k++) {
+        const t = k / 150;
         const hx = p0[0] + (p1[0] - p0[0]) * t + (Math.random() - 0.5) * 0.10;
         const hy = p0[1] + (p1[1] - p0[1]) * t + (Math.random() - 0.5) * 0.10;
         const hz = (Math.random() - 0.5) * 0.36;
@@ -248,41 +241,42 @@
     }
 
     /*************************************************************************
-     * 2. DIFFICULTY LEVELS (EASY / MEDIUM / HARD) & PAUSE STATE
+     * 2. DIFFICULTY LEVELS & PAUSE
      *************************************************************************/
     const DIFFICULTIES = [
       {
         name: '🟢 EASY',
         cls: 'ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-emerald-500/25 text-emerald-200 border border-emerald-400/50',
-        noteSpeed: 0.25,
-        spawnEverySteps: 4,
-        hitWindow: 0.28,
-        laneAssist: 1
+        travelTimeSec: 2.8,  // 2.8 seconds for a note to travel from the Δ Portal to the keys
+        spawnEverySteps: 4,  // Quarter notes
+        hitWindow: 0.24,     // Generous hit zone around the ring
+        laneAssist: 1        // Catches note even if you tap 1 letter next to it
       },
       {
         name: '🟡 MEDIUM',
         cls: 'ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-amber-500/25 text-amber-200 border border-amber-400/50',
-        noteSpeed: 0.36,
-        spawnEverySteps: 2,
-        hitWindow: 0.22,
+        travelTimeSec: 2.1,
+        spawnEverySteps: 2,  // 8th notes
+        hitWindow: 0.19,
         laneAssist: 1
       },
       {
         name: '🔴 HARD',
         cls: 'ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-rose-500/30 text-rose-200 border border-rose-400/60',
-        noteSpeed: 0.50,
+        travelTimeSec: 1.5,
         spawnEverySteps: 2,
-        hitWindow: 0.17,
+        hitWindow: 0.15,
         laneAssist: 0
       }
     ];
 
-    let diffIdx = 0; // EASY by default
+    let diffIdx = 0;
     let isPaused = false;
-    let muteSynthForExternalMusic = false;
+    let roomSpeakerSyncMode = false;
 
     const diffBtn = document.getElementById('diffBtn');
     diffBtn.addEventListener('click', () => {
+      unlockAndResumeAudio();
       diffIdx = (diffIdx + 1) % DIFFICULTIES.length;
       const d = DIFFICULTIES[diffIdx];
       diffBtn.textContent = d.name;
@@ -297,52 +291,64 @@
       pauseBtn.className = isPaused
         ? 'ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-emerald-500/35 text-emerald-100 border border-emerald-400'
         : 'ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-white/10 text-white border border-white/20';
-      if (isCustomSongPlaying) {
-        if (isPaused) songAudio.pause();
-        else songAudio.play().catch(() => {});
+      if (isCustomSongPlaying && songBufferSource) {
+        if (isPaused && audioCtx) audioCtx.suspend();
+        else unlockAndResumeAudio();
       }
     }
-    pauseBtn.addEventListener('click', () => setPaused(!isPaused));
+    pauseBtn.addEventListener('click', () => {
+      unlockAndResumeAudio();
+      setPaused(!isPaused);
+    });
 
     /*************************************************************************
-     * 3. AUDIO ENGINE, SPOTIFY EMBED & LIVE MIC SING-ALONG
+     * 3. 4 FULL-LENGTH INTERACTIVE GUITAR-HERO SONGS + BULLETPROOF iOS AUDIO
+     *    - Each song has a composed 16-step melody sequence!
+     *    - The drums/bass play the groove, while the MELODY NOTES travel down
+     *      the highway and ONLY play when YOU hit the matching letter!
      *************************************************************************/
-    const VIBES = [
+    const SONGS = [
       {
-        name: '🎵 PLAYA',
-        bpm: 118,
-        root: 45,
+        name: '🎵 SONG 1: PLAYA',
+        bpm: 116,
+        root: 45, // A2
+        // 7 lanes mapped to A minor melodic scale: A3, C4, D4, E4, G4, A4, C5
         laneNotes: [57, 60, 62, 64, 67, 69, 72],
+        // 16-step melody lane sequence (which letter 0..6 the melody note goes to!)
+        melodyLanes: [0, 1, 2, 3, 4, 3, 2, 1, 3, 4, 5, 6, 5, 4, 3, 2],
         bgTop: '#050210',
         bgMid: '#180736',
         accent1: '#22d3ee',
         accent2: '#e879f9'
       },
       {
-        name: '🎸 ROCK',
-        bpm: 114,
-        root: 40,
+        name: '🎸 SONG 2: ROCK',
+        bpm: 112,
+        root: 40, // E2
         laneNotes: [52, 55, 57, 59, 62, 64, 67],
+        melodyLanes: [0, 2, 3, 4, 3, 2, 1, 0, 2, 4, 5, 6, 4, 3, 2, 1],
         bgTop: '#160314',
         bgMid: '#3b0729',
         accent1: '#fbbf24',
         accent2: '#f43f5e'
       },
       {
-        name: '⚡ CYBER',
-        bpm: 128,
-        root: 41,
+        name: '⚡ SONG 3: CYBER',
+        bpm: 124,
+        root: 41, // F2
         laneNotes: [53, 54, 58, 60, 61, 65, 68],
+        melodyLanes: [3, 2, 1, 0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 4, 3],
         bgTop: '#021019',
         bgMid: '#0b2942',
         accent1: '#34d399',
         accent2: '#38bdf8'
       },
       {
-        name: '🌌 COSMIC',
+        name: '🌌 SONG 4: COSMIC',
         bpm: 98,
-        root: 43,
+        root: 43, // G2
         laneNotes: [55, 57, 59, 62, 64, 67, 71],
+        melodyLanes: [0, 1, 2, 4, 5, 6, 5, 4, 2, 3, 4, 5, 4, 2, 1, 0],
         bgTop: '#080420',
         bgMid: '#24104f',
         accent1: '#a78bfa',
@@ -353,6 +359,7 @@
     let vibeIdx = 0;
     let audioCtx = null;
     let masterGain = null;
+    let songFilter = null; // Guitar Hero filter: muffles loaded MP3 slightly if you miss notes, full clarity when you hit!
     let analyser = null;
     let micAnalyser = null;
     let micStream = null;
@@ -361,10 +368,10 @@
     let detectedVocalNote = '';
     let vocalStarPower = 0;
 
-    const songAudio = new Audio();
-    songAudio.crossOrigin = 'anonymous';
-    let songMediaSource = null;
+    // Decoded AudioBuffer player for uploaded MP3/M4A files (100% immune to iOS HTML5 Audio element bugs!)
+    let songBufferSource = null;
     let isCustomSongPlaying = false;
+    let customSongName = '';
 
     let soloOsc1 = null, soloOsc2 = null, soloFilter = null, soloGain = null;
     let isTouchingLogo = false;
@@ -373,74 +380,128 @@
       return 440 * Math.pow(2, (m - 69) / 12);
     }
 
-    function ensureAudioStarted() {
+    // Bulletproof iOS Safari Audio Context Unlocker
+    function unlockAndResumeAudio() {
       if (!audioCtx) {
         const AC = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AC();
+
         masterGain = audioCtx.createGain();
-        masterGain.gain.value = 0.85;
+        masterGain.gain.value = 0.90;
+
+        songFilter = audioCtx.createBiquadFilter();
+        songFilter.type = 'lowpass';
+        songFilter.frequency.value = 16000; // Full clarity when hitting notes!
 
         analyser = audioCtx.createAnalyser();
         analyser.fftSize = 512;
         analyser.smoothingTimeConstant = 0.78;
 
+        songFilter.connect(masterGain);
         masterGain.connect(analyser);
         analyser.connect(audioCtx.destination);
 
         nextBeatStepTime = audioCtx.currentTime + 0.05;
         setInterval(backingGrooveScheduler, 25);
       }
-      if (audioCtx.state === 'suspended') {
+      if (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted') {
         audioCtx.resume();
       }
+      // Play a silent 1-frame buffer to force iOS WebKit hardware audio unlock
+      try {
+        const silentBuf = audioCtx.createBuffer(1, 1, 22050);
+        const src = audioCtx.createBufferSource();
+        src.buffer = silentBuf;
+        src.connect(audioCtx.destination);
+        src.start(0);
+      } catch (e) {}
+
       isMusicStarted = true;
     }
 
-    function playLetterHitSound(laneIdx, isNoteHit = true) {
-      ensureAudioStarted();
-      if (muteSynthForExternalMusic) return;
+    // Attach global touchstart/touchend listener so iOS Safari NEVER stays muted after switching modals/apps
+    window.addEventListener('touchend', () => {
+      if (isMusicStarted && !isPaused && audioCtx && audioCtx.state !== 'running') {
+        audioCtx.resume();
+      }
+    }, { passive: true });
+
+    // Play the Song's Lead Melody Note when the player hits the letter on the highway!
+    function playMelodyNoteOnHit(laneIdx, midiNote, isNoteHit = true) {
+      unlockAndResumeAudio();
+      if (roomSpeakerSyncMode) return;
+
       const now = audioCtx.currentTime;
-      const vibe = VIBES[vibeIdx];
-      const freq = midiToFreq(vibe.laneNotes[laneIdx]);
+
+      // If playing an uploaded MP3/M4A file, hitting the note restores 100% studio clarity + adds a subtle harmonic chime!
+      if (isCustomSongPlaying && songFilter) {
+        songFilter.frequency.setTargetAtTime(16000, now, 0.04);
+      }
+
+      const song = SONGS[vibeIdx];
+      const freq = midiToFreq(midiNote || song.laneNotes[laneIdx]);
 
       const osc1 = audioCtx.createOscillator();
       const osc2 = audioCtx.createOscillator();
       const filt = audioCtx.createBiquadFilter();
       const gain = audioCtx.createGain();
 
-      osc1.type = vibeIdx === 1 ? 'sawtooth' : 'triangle';
-      osc2.type = 'sawtooth';
+      osc1.type = 'sawtooth';
+      osc2.type = vibeIdx === 1 ? 'square' : 'triangle';
       osc1.frequency.setValueAtTime(freq, now);
-      osc2.frequency.setValueAtTime(freq * 1.006, now);
+      osc2.frequency.setValueAtTime(freq * 1.006, now); // Rich stereo-style chorus
 
       filt.type = 'lowpass';
-      filt.frequency.setValueAtTime(isNoteHit ? 4600 : 2600, now);
-      filt.frequency.exponentialRampToValueAtTime(420, now + 0.34);
-      filt.Q.value = 3.2;
+      filt.frequency.setValueAtTime(isNoteHit ? 5400 : 2200, now);
+      filt.frequency.exponentialRampToValueAtTime(480, now + 0.42);
+      filt.Q.value = 3.5;
 
-      gain.gain.setValueAtTime(isNoteHit ? 0.32 : 0.20, now);
-      gain.gain.exponentialRampToValueAtTime(0.003, now + 0.36);
+      // Louder when hitting an actual song note; softer when freestyling between notes
+      const vol = isCustomSongPlaying ? (isNoteHit ? 0.16 : 0.08) : (isNoteHit ? 0.40 : 0.18);
+      gain.gain.setValueAtTime(vol, now);
+      gain.gain.exponentialRampToValueAtTime(0.002, now + 0.44);
 
       osc1.connect(filt);
       osc2.connect(filt);
-      filt.connect(gain);
-      gain.connect(masterGain);
+      filt.connect(masterGain);
 
       osc1.start(now);
       osc2.start(now);
-      osc1.stop(now + 0.37);
-      osc2.stop(now + 0.37);
+      osc1.stop(now + 0.45);
+      osc2.stop(now + 0.45);
+    }
+
+    // Subtle muted string thud when a player misses a note on the highway (like Guitar Hero!)
+    function playMissedNoteSound() {
+      if (!audioCtx || roomSpeakerSyncMode) return;
+      const now = audioCtx.currentTime;
+
+      // If playing a loaded MP3/M4A file, missing a note muffles the song's filter until you hit the next note!
+      if (isCustomSongPlaying && songFilter) {
+        songFilter.frequency.setTargetAtTime(650, now, 0.08);
+      }
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(95, now);
+      osc.frequency.exponentialRampToValueAtTime(42, now + 0.09);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start(now);
+      osc.stop(now + 0.11);
     }
 
     let grooveStep = 0;
     let nextBeatStepTime = 0;
-    const EASY_LANE_WALK = [0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 3, 4, 2, 3];
 
     function backingGrooveScheduler() {
       if (!audioCtx || !isMusicStarted || isPaused) return;
-      const vibe = VIBES[vibeIdx];
+      const song = SONGS[vibeIdx];
       const diff = DIFFICULTIES[diffIdx];
-      const stepDur = (60.0 / vibe.bpm) / 4;
+      const stepDur = (60.0 / song.bpm) / 4;
 
       if (nextBeatStepTime < audioCtx.currentTime) {
         nextBeatStepTime = audioCtx.currentTime + 0.02;
@@ -449,14 +510,16 @@
       while (nextBeatStepTime < audioCtx.currentTime + 0.08) {
         const s = grooveStep % 16;
 
-        if (!isCustomSongPlaying && !muteSynthForExternalMusic) {
+        // Play the rhythmic backing track (Drums + Sub-Bass ONLY — YOU play the melody when notes hit!)
+        if (!isCustomSongPlaying && !roomSpeakerSyncMode) {
+          // Kick on 0, 4, 8, 12
           if (s % 4 === 0) {
             const kOsc = audioCtx.createOscillator();
             const kGain = audioCtx.createGain();
             kOsc.type = 'sine';
             kOsc.frequency.setValueAtTime(135, nextBeatStepTime);
             kOsc.frequency.exponentialRampToValueAtTime(38, nextBeatStepTime + 0.16);
-            kGain.gain.setValueAtTime(0.72, nextBeatStepTime);
+            kGain.gain.setValueAtTime(0.68, nextBeatStepTime);
             kGain.gain.exponentialRampToValueAtTime(0.001, nextBeatStepTime + 0.30);
             kOsc.connect(kGain);
             kGain.connect(masterGain);
@@ -465,12 +528,13 @@
             bassEnergy = Math.min(1.5, bassEnergy + 0.6);
           }
 
+          // Snare on 4, 12
           if (s === 4 || s === 12) {
-            const bufSize = Math.floor(audioCtx.sampleRate * 0.14);
+            const bufSize = Math.floor(audioCtx.sampleRate * 0.13);
             const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
             const data = buf.getChannelData(0);
             for (let i = 0; i < bufSize; i++) {
-              data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.04));
+              data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.038));
             }
             const noise = audioCtx.createBufferSource();
             noise.buffer = buf;
@@ -478,44 +542,39 @@
             bp.type = 'bandpass';
             bp.frequency.setValueAtTime(1500, nextBeatStepTime);
             const nGain = audioCtx.createGain();
-            nGain.gain.setValueAtTime(0.32, nextBeatStepTime);
-            nGain.gain.exponentialRampToValueAtTime(0.005, nextBeatStepTime + 0.14);
+            nGain.gain.setValueAtTime(0.28, nextBeatStepTime);
+            nGain.gain.exponentialRampToValueAtTime(0.005, nextBeatStepTime + 0.13);
             noise.connect(bp);
             bp.connect(nGain);
             nGain.connect(masterGain);
             noise.start(nextBeatStepTime);
           }
 
-          if (s % 2 === 1 || s === 6 || s === 14) {
+          // Steady deep sub-bass pulse (leaves room for the player's lead melody!)
+          if (s % 2 === 0) {
             const bOsc = audioCtx.createOscillator();
             const bFilt = audioCtx.createBiquadFilter();
             const bGain = audioCtx.createGain();
-            const noteOffset = (s === 6 || s === 14) ? 7 : 0;
-            bOsc.type = 'sawtooth';
-            bOsc.frequency.setValueAtTime(midiToFreq(vibe.root + noteOffset), nextBeatStepTime);
+            const noteOffset = (s >= 8 && s < 12) ? 3 : (s >= 12 ? 5 : 0);
+            bOsc.type = 'triangle';
+            bOsc.frequency.setValueAtTime(midiToFreq(song.root + noteOffset), nextBeatStepTime);
             bFilt.type = 'lowpass';
-            bFilt.frequency.setValueAtTime(900, nextBeatStepTime);
-            bFilt.frequency.exponentialRampToValueAtTime(130, nextBeatStepTime + 0.15);
-            bGain.gain.setValueAtTime(0.25, nextBeatStepTime);
-            bGain.gain.exponentialRampToValueAtTime(0.005, nextBeatStepTime + 0.16);
+            bFilt.frequency.setValueAtTime(450, nextBeatStepTime);
+            bGain.gain.setValueAtTime(0.26, nextBeatStepTime);
+            bGain.gain.exponentialRampToValueAtTime(0.005, nextBeatStepTime + 0.18);
             bOsc.connect(bFilt);
             bFilt.connect(bGain);
             bGain.connect(masterGain);
             bOsc.start(nextBeatStepTime);
-            bOsc.stop(nextBeatStepTime + 0.17);
+            bOsc.stop(nextBeatStepTime + 0.19);
           }
-        }
 
-        // Spawn Highway Notes smoothly (even when muted for Spotify/Apple Music!)
-        if (!isCustomSongPlaying && (s % diff.spawnEverySteps === 0)) {
-          const walkIdx = Math.floor(grooveStep / diff.spawnEverySteps) % EASY_LANE_WALK.length;
-          const lane = EASY_LANE_WALK[walkIdx];
-          spawnHighwayNote(lane);
-          if (diffIdx === 2 && s === 0) {
-            spawnHighwayNote((lane + 2) % 7);
-          }
-          if (muteSynthForExternalMusic && s % 4 === 0) {
-            bassEnergy = Math.min(1.4, bassEnergy + 0.45);
+          // Spawn the Song's Melody Notes down the Highway!
+          if (s % diff.spawnEverySteps === 0) {
+            const seqIdx = Math.floor(grooveStep / diff.spawnEverySteps) % song.melodyLanes.length;
+            const lane = song.melodyLanes[seqIdx];
+            const midi = song.laneNotes[lane];
+            spawnHighwayNote(lane, midi);
           }
         }
 
@@ -524,9 +583,10 @@
       }
     }
 
+    // Touch-Solo Synth when dragging the Upper 3D Δ Logo
     function startLogoSolo(nx, ny) {
-      ensureAudioStarted();
-      if (muteSynthForExternalMusic) {
+      unlockAndResumeAudio();
+      if (roomSpeakerSyncMode) {
         isTouchingLogo = true;
         return;
       }
@@ -555,10 +615,10 @@
     }
 
     function updateLogoSolo(nx, ny) {
-      if (!audioCtx || !soloOsc1 || !isTouchingLogo || muteSynthForExternalMusic) return;
-      const vibe = VIBES[vibeIdx];
+      if (!audioCtx || !soloOsc1 || !isTouchingLogo || roomSpeakerSyncMode) return;
+      const song = SONGS[vibeIdx];
       const idx = Math.max(0, Math.min(6, Math.floor(((nx + 1) * 0.5) * 7)));
-      const freq = midiToFreq(vibe.laneNotes[idx] + 12 + nx * 1.2);
+      const freq = midiToFreq(song.laneNotes[idx] + 12 + nx * 1.2);
       const now = audioCtx.currentTime;
       soloOsc1.frequency.setTargetAtTime(freq, now, 0.02);
       soloOsc2.frequency.setTargetAtTime(freq * 0.502, now, 0.02);
@@ -611,7 +671,7 @@
     const modalMicToggleBtn = document.getElementById('modalMicToggleBtn');
 
     async function toggleMicrophone() {
-      ensureAudioStarted();
+      unlockAndResumeAudio();
       if (isMicActive) {
         if (micStream) micStream.getTracks().forEach(t => t.stop());
         isMicActive = false;
@@ -642,13 +702,46 @@
     micQuickBtn.addEventListener('click', toggleMicrophone);
     modalMicToggleBtn.addEventListener('click', toggleMicrophone);
 
+    // Stop any custom uploaded song and cleanly return to the built-in interactive songs!
     const vibeBtn = document.getElementById('vibeBtn');
+    const backToBuiltInBtn = document.getElementById('backToBuiltInBtn');
+
+    function stopCustomSongAndRestoreBuiltIn() {
+      if (songBufferSource) {
+        try { songBufferSource.stop(); } catch (e) {}
+        try { songBufferSource.disconnect(); } catch (e) {}
+        songBufferSource = null;
+      }
+      isCustomSongPlaying = false;
+      roomSpeakerSyncMode = false;
+      document.getElementById('roomSpeakerSyncBtn').textContent =
+        '📡 SPEAKER BEAT-SYNC MODE (MUTE GAME SYNTH): OFF';
+      if (songFilter && audioCtx) {
+        songFilter.frequency.setValueAtTime(16000, audioCtx.currentTime);
+      }
+      backToBuiltInBtn.classList.add('hidden');
+      vibeBtn.textContent = SONGS[vibeIdx].name;
+      unlockAndResumeAudio();
+    }
+
     vibeBtn.addEventListener('click', () => {
-      ensureAudioStarted();
-      vibeIdx = (vibeIdx + 1) % VIBES.length;
-      vibeBtn.textContent = VIBES[vibeIdx].name;
+      if (isCustomSongPlaying || roomSpeakerSyncMode) {
+        stopCustomSongAndRestoreBuiltIn();
+      } else {
+        vibeIdx = (vibeIdx + 1) % SONGS.length;
+        vibeBtn.textContent = SONGS[vibeIdx].name;
+      }
+      unlockAndResumeAudio();
       screenFlash = 0.45;
       explodeLogoShards(0.2);
+      showCenterCallout(SONGS[vibeIdx].name, SONGS[vibeIdx].accent1);
+    });
+
+    backToBuiltInBtn.addEventListener('click', () => {
+      stopCustomSongAndRestoreBuiltIn();
+      musicModal.classList.add('hidden');
+      setPaused(false);
+      showCenterCallout(SONGS[vibeIdx].name, '#22d3ee');
     });
 
     const musicModal = document.getElementById('musicModal');
@@ -659,72 +752,64 @@
     document.getElementById('closeModalBtn').addEventListener('click', () => {
       musicModal.classList.add('hidden');
       setPaused(false);
+      unlockAndResumeAudio();
     });
 
-    // Spotify Link Parser & Embed Dock
-    const spotifyUrlInput = document.getElementById('spotifyUrlInput');
-    const loadSpotifyEmbedBtn = document.getElementById('loadSpotifyEmbedBtn');
-    const spotifyDock = document.getElementById('spotifyDock');
-    const spotifyIframe = document.getElementById('spotifyIframe');
-    const bgMusicModeBtn = document.getElementById('bgMusicModeBtn');
-
-    function setBgMuteMode(val) {
-      muteSynthForExternalMusic = val;
-      bgMusicModeBtn.textContent = muteSynthForExternalMusic
-        ? '🔇 GAME SYNTH MUTED (READY FOR SPOTIFY / APPLE MUSIC!)'
-        : '🔊 GAME SYNTH AUDIO: ON (TAP TO MUTE FOR SPOTIFY / APPLE MUSIC)';
-      bgMusicModeBtn.className = muteSynthForExternalMusic
-        ? 'ui-btn rounded-xl py-2 px-3 text-xs font-extrabold bg-emerald-500/35 text-emerald-100 border border-emerald-400 w-full'
-        : 'ui-btn rounded-xl py-2 px-3 text-xs font-extrabold bg-cyan-500/20 text-cyan-200 border border-cyan-400/40 w-full';
-    }
-
-    bgMusicModeBtn.addEventListener('click', () => setBgMuteMode(!muteSynthForExternalMusic));
-
-    loadSpotifyEmbedBtn.addEventListener('click', () => {
-      ensureAudioStarted();
-      const raw = spotifyUrlInput.value.trim();
-      let embedUrl = 'https://open.spotify.com/embed/playlist/37i9dQZF1DX6J5NfMJS675?utm_source=generator&theme=0';
-      const match = raw.match(/spotify\.com\/(track|album|playlist|artist)\/([a-zA-Z0-9]+)/);
-      if (match) {
-        embedUrl = `https://open.spotify.com/embed/${match[1]}/${match[2]}?utm_source=generator&theme=0`;
+    const roomSpeakerSyncBtn = document.getElementById('roomSpeakerSyncBtn');
+    roomSpeakerSyncBtn.addEventListener('click', async () => {
+      unlockAndResumeAudio();
+      roomSpeakerSyncMode = !roomSpeakerSyncMode;
+      if (roomSpeakerSyncMode && !isMicActive) {
+        await toggleMicrophone();
       }
-      spotifyIframe.src = embedUrl;
-      spotifyDock.classList.remove('hidden');
-      setBgMuteMode(true);
-      musicModal.classList.add('hidden');
-      setPaused(false);
-      showCenterCallout('🟢 TAP PLAY ON THE SPOTIFY BAR ABOVE!', '#34d399');
+      roomSpeakerSyncBtn.textContent = roomSpeakerSyncMode
+        ? '📡 SPEAKER BEAT-SYNC MODE: ON 🔥 (LISTENING TO ROOM MUSIC)'
+        : '📡 SPEAKER BEAT-SYNC MODE (MUTE GAME SYNTH): OFF';
+      roomSpeakerSyncBtn.className = roomSpeakerSyncMode
+        ? 'ui-btn rounded-xl py-2 px-3 text-xs font-extrabold bg-emerald-500/35 text-emerald-100 border border-emerald-400 w-full'
+        : 'ui-btn rounded-xl py-2 px-3 text-xs font-extrabold bg-white/10 text-slate-200 border border-white/20 w-full';
     });
 
-    document.getElementById('closeSpotifyDockBtn').addEventListener('click', () => {
-      spotifyDock.classList.add('hidden');
-      spotifyIframe.src = '';
-      setBgMuteMode(false);
-    });
-
+    // Decode & Play Uploaded MP3/M4A/WAV directly through Web Audio Buffer (Never breaks iOS AudioContext!)
     const mp3Input = document.getElementById('mp3Input');
     document.getElementById('modalLoadMp3Btn').addEventListener('click', () => mp3Input.click());
-    mp3Input.addEventListener('change', (e) => {
+
+    mp3Input.addEventListener('change', async (e) => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
-      ensureAudioStarted();
-      setBgMuteMode(false);
-      songAudio.src = URL.createObjectURL(file);
-      songAudio.load();
-      if (!songMediaSource) {
-        songMediaSource = audioCtx.createMediaElementSource(songAudio);
-        songMediaSource.connect(masterGain);
-      }
+      unlockAndResumeAudio();
+      showCenterCallout('⏳ LOADING & MAPPING SONG BEATS...', '#fbbf24');
       musicModal.classList.add('hidden');
       setPaused(false);
-      songAudio.play().then(() => {
+
+      try {
+        const arrayBuf = await file.arrayBuffer();
+        const audioBuffer = await audioCtx.decodeAudioData(arrayBuf);
+
+        if (songBufferSource) {
+          try { songBufferSource.stop(); } catch (err) {}
+          try { songBufferSource.disconnect(); } catch (err) {}
+        }
+
+        songBufferSource = audioCtx.createBufferSource();
+        songBufferSource.buffer = audioBuffer;
+        songBufferSource.loop = true;
+        songBufferSource.connect(songFilter);
+        songBufferSource.start(0);
+
         isCustomSongPlaying = true;
-        showCenterCallout(`🎵 PLAYING: ${file.name.toUpperCase()}`, '#fbbf24');
-      }).catch(() => {});
+        roomSpeakerSyncMode = false;
+        customSongName = file.name.replace(/\.[^/.]+$/, '');
+        vibeBtn.textContent = '🔄 BACK TO GAME SONGS';
+        backToBuiltInBtn.classList.remove('hidden');
+        showCenterCallout(`🎵 PLAYING: ${customSongName.toUpperCase()}`, '#34d399');
+      } catch (err) {
+        showCenterCallout('⚠️ COULD NOT DECODE AUDIO FILE', '#f43f5e');
+      }
     });
 
     /*************************************************************************
-     * 4. GUITAR HERO HIGHWAY & FORGIVING MAGNETIC LANE ASSIST
+     * 4. GUITAR HERO HIGHWAY & MELODY HIT / MISS SYSTEM
      *************************************************************************/
     const highwayNotes = [];
     const hitParticles = [];
@@ -744,9 +829,11 @@
       calloutColor = col || '#22d3ee';
     }
 
-    function spawnHighwayNote(lane) {
+    function spawnHighwayNote(lane, midiNote) {
+      const song = SONGS[vibeIdx];
       highwayNotes.push({
         lane,
+        midi: midiNote || song.laneNotes[lane],
         progress: 0.0,
         hit: false,
         color: ANUBAYN_KEYS[lane].color
@@ -754,7 +841,7 @@
     }
 
     function triggerLaneKey(tappedLane) {
-      ensureAudioStarted();
+      unlockAndResumeAudio();
       if (isPaused) return;
 
       const diff = DIFFICULTIES[diffIdx];
@@ -782,21 +869,22 @@
         streak++;
         const vocalBonus = vocalStarPower > 0.25 ? 2 : 1;
         multiplier = Math.min(8, (1 + Math.floor(streak / 5)) * vocalBonus);
-        const pts = (bestDist < 0.10 ? 200 : 120) * multiplier;
+        const pts = (bestDist < 0.09 ? 200 : 120) * multiplier;
         score += pts;
 
         showCenterCallout(
-          vocalBonus > 1 ? `🎙️ VOCAL 2X HIT +${pts}` : (bestDist < 0.10 ? `⚡ PERFECT +${pts}` : `🔥 NICE +${pts}`),
+          vocalBonus > 1 ? `🎙️ VOCAL 2X +${pts}` : (bestDist < 0.09 ? `⚡ PERFECT +${pts}` : `🔥 HIT +${pts}`),
           ANUBAYN_KEYS[activeLane].color
         );
 
-        playLetterHitSound(activeLane, true);
-        spawnKeyExplosion(keyPos.x, keyPos.y, ANUBAYN_KEYS[activeLane].color, 24);
-        logoRipple = Math.min(1.5, logoRipple + 0.4);
+        // Play the exact melody note of the song!
+        playMelodyNoteOnHit(activeLane, hitNote.midi, true);
+        spawnKeyExplosion(keyPos.x, keyPos.y, ANUBAYN_KEYS[activeLane].color, 26);
+        logoRipple = Math.min(1.5, logoRipple + 0.42);
       } else {
-        playLetterHitSound(tappedLane, false);
-        spawnKeyExplosion(keyPos.x, keyPos.y, ANUBAYN_KEYS[tappedLane].color, 8);
-        logoRipple = Math.min(1.1, logoRipple + 0.15);
+        // Freestyle tap when no note is on the ring
+        playMelodyNoteOnHit(tappedLane, SONGS[vibeIdx].laneNotes[tappedLane], false);
+        spawnKeyExplosion(keyPos.x, keyPos.y, ANUBAYN_KEYS[tappedLane].color, 7);
       }
 
       document.getElementById('scoreDisplay').textContent = score.toLocaleString();
@@ -850,7 +938,7 @@
 
     function getLaneScreenPos(laneIdx, progress) {
       const normLane = (laneIdx - 3) / 3;
-      const topY = height * 0.42;
+      const topY = height * 0.41;
       const botY = height * 0.85;
       const p = Math.pow(Math.max(0, progress), 1.55);
       const y = topY + p * (botY - topY);
@@ -873,10 +961,10 @@
     let screenFlash = 0;
 
     function handleStagePointer(clientX, clientY, isNewTap) {
-      ensureAudioStarted();
+      unlockAndResumeAudio();
       if (isPaused) return;
 
-      if (clientY > height * 0.54) {
+      if (clientY > height * 0.52) {
         stopLogoSolo();
         const botSpread = Math.min(width * 0.44, 340);
         const relX = (clientX - width * 0.5) / botSpread;
@@ -891,7 +979,7 @@
 
       lastTouchedLane = -1;
       const nx = (clientX / width) * 2 - 1;
-      const ny = -((clientY / (height * 0.52)) * 2 - 1);
+      const ny = -((clientY / (height * 0.50)) * 2 - 1);
       logoTouchNX = nx;
       logoTouchNY = ny;
 
@@ -945,33 +1033,30 @@
       const y2 = wy * cosX - z1 * sinX;
       const z2 = z1 * cosX + wy * sinX;
 
-      const camDist = 3.8;
+      const camDist = 3.7;
       const fov = Math.min(width, height * 0.68) * 0.56;
       const depth = Math.max(0.9, camDist - z2);
       const scale = fov / depth;
 
-      const dockOpen = !spotifyDock.classList.contains('hidden');
-      const logoCenterY = dockOpen ? height * 0.30 : height * 0.25;
       return {
         sx: width * 0.5 + x1 * scale,
-        sy: logoCenterY - y2 * scale,
+        sy: height * 0.25 - y2 * scale,
         scale,
         z: z2
       };
     }
 
-    function drawMonolithic3DDelta(time, vibe) {
+    function drawMonolithic3DDelta(time, song) {
       const extrudeDepth = 0.28 + bassEnergy * 0.16 + vocalStarPower * 0.15;
       const fZ = extrudeDepth * 0.5;
       const bZ = -extrudeDepth * 0.5;
 
-      // 1. Holographic Neon Echo Rings
       for (let ring = 3; ring >= 1; ring--) {
         const rScale = 1.0 + ring * 0.12 + bassEnergy * 0.08;
         const rZ = bZ - ring * 0.22;
         const rPts = DELTA_MONOLITH_VERTS.map(([x, y]) => projectDelta3D(x * rScale, y * rScale, rZ, time));
         ctx.save();
-        ctx.strokeStyle = ring % 2 === 0 ? vibe.accent1 : vibe.accent2;
+        ctx.strokeStyle = ring % 2 === 0 ? song.accent1 : song.accent2;
         ctx.globalAlpha = (0.14 / ring) + vocalStarPower * 0.15;
         ctx.lineWidth = 1.5;
         ctx.beginPath();
@@ -984,7 +1069,6 @@
         ctx.restore();
       }
 
-      // 2. Plasma Core inside Δ Portal
       const coreCenter = projectDelta3D(0, -0.15, 0, time);
       const coreRadius = (26 + bassEnergy * 28 + vocalStarPower * 35) * (coreCenter.scale / 180);
       ctx.save();
@@ -993,7 +1077,7 @@
         coreCenter.sx, coreCenter.sy, Math.max(8, coreRadius)
       );
       coreGrad.addColorStop(0, '#ffffff');
-      coreGrad.addColorStop(0.4, vocalStarPower > 0.2 ? '#f43f5e' : vibe.accent1);
+      coreGrad.addColorStop(0.4, vocalStarPower > 0.2 ? '#f43f5e' : song.accent1);
       coreGrad.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = coreGrad;
       ctx.beginPath();
@@ -1004,7 +1088,6 @@
       const frontPts = DELTA_MONOLITH_VERTS.map(([x, y]) => projectDelta3D(x, y, fZ, time));
       const backPts  = DELTA_MONOLITH_VERTS.map(([x, y]) => projectDelta3D(x, y, bZ, time));
 
-      // 3. 3D Extruded Bevel Side-Walls
       ctx.save();
       ctx.globalAlpha = Math.max(0.2, 1 - logoShatterFactor * 0.7);
       for (let i = 0; i < frontPts.length; i++) {
@@ -1013,7 +1096,7 @@
           frontPts[i].sx, frontPts[i].sy,
           backPts[ni].sx, backPts[ni].sy
         );
-        wallGrad.addColorStop(0, i % 2 === 0 ? vibe.accent1 : vibe.accent2);
+        wallGrad.addColorStop(0, i % 2 === 0 ? song.accent1 : song.accent2);
         wallGrad.addColorStop(1, '#0f0728');
         ctx.fillStyle = wallGrad;
         ctx.strokeStyle = 'rgba(255,255,255,0.28)';
@@ -1030,18 +1113,17 @@
       }
       ctx.restore();
 
-      // 4. Seamless Monolithic Liquid-Chrome Front Face
       const chromeGrad = ctx.createLinearGradient(
         width * 0.32 + Math.sin(time * 2.4) * 90,
         height * 0.06,
         width * 0.68 + Math.cos(time * 1.9) * 70,
         height * 0.42
       );
-      chromeGrad.addColorStop(0.00, vibe.accent1);
+      chromeGrad.addColorStop(0.00, song.accent1);
       chromeGrad.addColorStop(0.22, '#ffffff');
       chromeGrad.addColorStop(0.46, '#1e1b4b');
       chromeGrad.addColorStop(0.68, '#ffffff');
-      chromeGrad.addColorStop(0.85, vibe.accent2);
+      chromeGrad.addColorStop(0.85, song.accent2);
       chromeGrad.addColorStop(1.00, '#ffffff');
 
       ctx.save();
@@ -1050,7 +1132,7 @@
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 2.2;
       ctx.lineJoin = 'round';
-      ctx.shadowColor = vocalStarPower > 0.25 ? '#f43f5e' : vibe.accent1;
+      ctx.shadowColor = vocalStarPower > 0.25 ? '#f43f5e' : song.accent1;
       ctx.shadowBlur = 20 + bassEnergy * 24 + vocalStarPower * 25;
 
       ctx.beginPath();
@@ -1075,7 +1157,8 @@
       }
     }
 
-    function draw3DFretKeyLetter(laneIdx) {
+    // Draw each of the 7 Custom 3D A-N-U-B-A-Y-N Fret Keys + "TAP NOW!" Target Glow Ring
+    function draw3DFretKeyLetter(laneIdx, hasIncomingNoteSoon) {
       const def = ANUBAYN_KEYS[laneIdx];
       const bounce = keyBounce[laneIdx];
       const pos = getLaneScreenPos(laneIdx, 1.0);
@@ -1084,13 +1167,28 @@
       const cx = pos.x;
       const cy = pos.y - bounce * 12;
 
+      // Outer Target Halo when a note is entering the hit zone!
+      if (hasIncomingNoteSoon) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(1, 0.58);
+        ctx.beginPath();
+        ctx.arc(0, 14, keyRadius * 1.48, 0, Math.PI * 2);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3.0;
+        ctx.shadowColor = def.color;
+        ctx.shadowBlur = 22;
+        ctx.stroke();
+        ctx.restore();
+      }
+
       ctx.save();
       ctx.translate(cx, cy);
       ctx.scale(1, 0.58);
       ctx.beginPath();
       ctx.arc(0, 14, keyRadius * 1.18, 0, Math.PI * 2);
-      ctx.fillStyle = bounce > 0.1 ? def.color : 'rgba(14, 10, 30, 0.90)';
-      ctx.strokeStyle = def.color;
+      ctx.fillStyle = bounce > 0.1 ? def.color : (hasIncomingNoteSoon ? 'rgba(255,255,255,0.22)' : 'rgba(14, 10, 30, 0.90)');
+      ctx.strokeStyle = hasIncomingNoteSoon ? '#ffffff' : def.color;
       ctx.lineWidth = 2.5 + bounce * 3;
       ctx.shadowColor = def.color;
       ctx.shadowBlur = 12 + bounce * 24;
@@ -1150,7 +1248,7 @@
       const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
       lastFrameTime = now;
       const time = now * 0.001;
-      const vibe = VIBES[vibeIdx];
+      const song = SONGS[vibeIdx];
       const diff = DIFFICULTIES[diffIdx];
 
       let b = 0, m = 0, h = 0;
@@ -1196,14 +1294,23 @@
         } else {
           vocalStarPower *= 0.92;
         }
+
+        const minGap = diffIdx === 0 ? 440 : (diffIdx === 1 ? 300 : 200);
+        if (roomSpeakerSyncMode && (mb > 0.20 || mm > 0.16) && now - lastExternalSpawnTime > minGap) {
+          const lane = peakBin % 7;
+          spawnHighwayNote(lane, song.laneNotes[lane]);
+          lastExternalSpawnTime = now;
+        }
       } else {
         vocalStarPower *= 0.92;
       }
 
+      // Spawn beat-synced notes when an uploaded MP3/M4A file is playing!
       if (isCustomSongPlaying && !isPaused) {
-        const minGap = diffIdx === 0 ? 420 : (diffIdx === 1 ? 280 : 190);
-        if ((b > 0.34 || m > 0.32) && now - lastExternalSpawnTime > minGap) {
-          spawnHighwayNote(Math.floor((b * 11 + m * 17) * 7) % 7);
+        const minGap = diffIdx === 0 ? 440 : (diffIdx === 1 ? 300 : 200);
+        if ((b > 0.30 || m > 0.28) && now - lastExternalSpawnTime > minGap) {
+          const lane = Math.floor((b * 11 + m * 17) * 7) % 7;
+          spawnHighwayNote(lane, song.laneNotes[lane]);
           lastExternalSpawnTime = now;
         }
       }
@@ -1226,8 +1333,8 @@
         width * 0.5, height * 0.25, 10,
         width * 0.5, height * 0.5, Math.max(width, height) * 0.9
       );
-      bgGrad.addColorStop(0, vibe.bgMid);
-      bgGrad.addColorStop(1, vibe.bgTop);
+      bgGrad.addColorStop(0, song.bgMid);
+      bgGrad.addColorStop(1, song.bgTop);
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
@@ -1235,7 +1342,7 @@
       ctx.translate(width * 0.5, height * 0.25);
       for (let i = 0; i < 12; i++) {
         const ang = (i / 12) * Math.PI * 2 + time * 0.24;
-        ctx.strokeStyle = i % 2 === 0 ? vibe.accent1 : vibe.accent2;
+        ctx.strokeStyle = i % 2 === 0 ? song.accent1 : song.accent2;
         ctx.globalAlpha = 0.07 + highEnergy * 0.22 + vocalStarPower * 0.18;
         ctx.lineWidth = 1.5 + bassEnergy * 3;
         ctx.beginPath();
@@ -1251,7 +1358,7 @@
       const botRight = getLaneScreenPos(6, 1.08);
 
       ctx.save();
-      const hwyGrad = ctx.createLinearGradient(0, height * 0.42, 0, height * 0.90);
+      const hwyGrad = ctx.createLinearGradient(0, height * 0.41, 0, height * 0.90);
       hwyGrad.addColorStop(0, 'rgba(15, 8, 36, 0.15)');
       hwyGrad.addColorStop(0.85, 'rgba(12, 6, 28, 0.84)');
       hwyGrad.addColorStop(1, 'rgba(6, 3, 16, 0.95)');
@@ -1265,12 +1372,14 @@
       ctx.fill();
       ctx.restore();
 
+      const noteStepSpeed = 1.0 / diff.travelTimeSec;
+
       ctx.save();
       for (let g = 0; g < 7; g++) {
-        const prog = ((g / 7) + (isPaused ? 0 : time * diff.noteSpeed)) % 1.0;
+        const prog = ((g / 7) + (isPaused ? 0 : time * noteStepSpeed)) % 1.0;
         const lPos = getLaneScreenPos(0, prog);
         const rPos = getLaneScreenPos(6, prog);
-        ctx.strokeStyle = vibe.accent1;
+        ctx.strokeStyle = song.accent1;
         ctx.globalAlpha = prog * 0.24;
         ctx.lineWidth = 1 + prog * 1.5;
         ctx.beginPath();
@@ -1298,17 +1407,25 @@
       }
       ctx.restore();
 
+      const laneHasUpcoming = [false, false, false, false, false, false, false];
+
       for (let i = highwayNotes.length - 1; i >= 0; i--) {
         const n = highwayNotes[i];
         if (!isPaused) {
-          n.progress += dt * diff.noteSpeed;
+          n.progress += dt * noteStepSpeed;
         }
 
-        if (n.hit || n.progress > 1.22) {
-          if (!n.hit && n.progress > 1.22) {
+        if (!n.hit && n.progress >= 0.78 && n.progress <= 1.12) {
+          laneHasUpcoming[n.lane] = true;
+        }
+
+        if (n.hit || n.progress > 1.16) {
+          if (!n.hit && n.progress > 1.16) {
+            // Player missed the note -> Melody drops out + subtle missed-string sound!
             streak = 0;
             multiplier = 1;
             document.getElementById('comboBadge').textContent = '1x';
+            playMissedNoteSound();
           }
           highwayNotes.splice(i, 1);
           continue;
@@ -1337,10 +1454,10 @@
       }
 
       for (let lane = 0; lane < 7; lane++) {
-        draw3DFretKeyLetter(lane);
+        draw3DFretKeyLetter(lane, laneHasUpcoming[lane]);
       }
 
-      drawMonolithic3DDelta(time, vibe);
+      drawMonolithic3DDelta(time, song);
 
       for (let i = 0; i < logoShards.length; i++) {
         const s = logoShards[i];
@@ -1417,7 +1534,7 @@
         ctx.fillStyle = '#e2e8f0';
         ctx.shadowColor = '#22d3ee';
         ctx.shadowBlur = 12;
-        ctx.fillText('TAP OR SLIDE A-N-U-B-A-Y-N TO START • DRAG 3D Δ LOGO TO SOLO', width * 0.5, height * 0.50);
+        ctx.fillText('TAP THE GLOWING A-N-U-B-A-Y-N LETTERS AS NOTES ARRIVE TO PLAY THE MELODY!', width * 0.5, height * 0.50);
         ctx.restore();
       } else if (calloutAlpha > 0.02) {
         calloutAlpha *= 0.94;

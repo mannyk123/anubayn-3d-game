@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ANUBAYN" />
+  <meta name="theme-color" content="#04010a" />
+  <title>ANUBAYN // 3D Sonic Portal</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #04010a;
+      color: #ffffff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    #gameCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      display: block;
+      z-index: 1;
+    }
+    .pill-glass {
+      background: rgba(10, 6, 24, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+    .ui-btn {
+      transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+    .ui-btn:active {
+      transform: scale(0.92);
+    }
+    .top-safe {
+      top: max(10px, env(safe-area-inset-top));
+    }
+  </style>
+</head>
+<body class="bg-[#04010a] text-white antialiased">
+
+  <!-- Full-Screen 3D Stage & Highway -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Hidden Audio File Input -->
+  <input id="mp3Input" type="file" accept="audio/*" class="hidden" />
+
+  <!-- ==================== CLEAN TOP CONTROL BAR (iPhone Safe Area) ==================== -->
+  <div class="fixed top-safe left-2.5 right-2.5 z-20 flex flex-wrap items-center justify-between gap-1.5 pointer-events-none">
+    <!-- Left: Pause Button + Score + Combo -->
+    <div class="pill-glass rounded-full px-2.5 py-1 flex items-center gap-2 pointer-events-auto shadow-lg">
+      <button id="pauseBtn" class="ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-white/10 text-white border border-white/20">
+        ⏸ PAUSE
+      </button>
+      <div class="flex items-center gap-1.5 pr-1">
+        <span id="scoreDisplay" class="font-mono font-black text-sm tracking-wider text-white">0</span>
+        <span id="comboBadge" class="text-xs font-extrabold px-2 py-0.5 rounded-full bg-fuchsia-500/30 text-fuchsia-200 border border-fuchsia-400/40">
+          1x
+        </span>
+      </div>
+    </div>
+
+    <!-- Right: Easy/Med/Hard + Vibe + Sing + Music/Spotify Button -->
+    <div class="pill-glass rounded-full p-1 flex items-center gap-1 pointer-events-auto shadow-lg">
+      <button id="diffBtn" class="ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-emerald-500/25 text-emerald-200 border border-emerald-400/50">
+        🟢 EASY
+      </button>
+      <button id="vibeBtn" class="ui-btn rounded-full px-2.5 py-1 text-xs font-bold bg-cyan-500/25 text-cyan-200 border border-cyan-400/40">
+        🎵 PLAYA
+      </button>
+      <button id="micQuickBtn" class="ui-btn rounded-full px-2.5 py-1 text-xs font-bold text-rose-200 border border-rose-400/40 bg-rose-500/15">
+        🎙️ SING
+      </button>
+      <button id="musicHubBtn" class="ui-btn rounded-full px-2.5 py-1 text-xs font-bold text-amber-200 border border-amber-400/40 bg-amber-500/15">
+        🎧 MUSIC
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== DOCKED SPOTIFY MINI-PLAYER (When User Loads a Spotify Link) ==================== -->
+  <div id="spotifyDock" class="hidden fixed left-2.5 right-2.5 z-20 flex items-center gap-1.5 pointer-events-auto" style="top: max(54px, calc(env(safe-area-inset-top) + 46px));">
+    <div class="flex-1 rounded-2xl overflow-hidden shadow-2xl border border-emerald-400/40 bg-black/80">
+      <iframe id="spotifyIframe" src="" width="100%" height="80" frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </div>
+    <button id="closeSpotifyDockBtn" class="pill-glass rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold text-white shrink-0">
+      ✕
+    </button>
+  </div>
+
+  <!-- ==================== SPOTIFY / APPLE MUSIC & SING-ALONG HUB MODAL ==================== -->
+  <div id="musicModal" class="hidden fixed inset-0 z-30 bg-black/80 backdrop-blur-md flex items-center justify-center p-3.5 overflow-y-auto">
+    <div class="pill-glass rounded-3xl p-4 sm:p-5 max-w-md w-full border border-white/20 shadow-2xl flex flex-col gap-3.5 my-auto">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🎧</span>
+          <h2 class="text-xs sm:text-sm font-black tracking-wider uppercase text-cyan-300">
+            MUSIC SOURCES & SING-ALONG
+          </h2>
+        </div>
+        <button id="closeModalBtn" class="ui-btn rounded-full px-3 py-1 text-xs font-bold bg-emerald-500/30 text-emerald-100 border border-emerald-400/50">
+          ▶ PLAY GAME
+        </button>
+      </div>
+
+      <!-- 1. Paste Any Spotify Link (Embeds Spotify Player Right Inside the Game!) -->
+      <div class="bg-white/5 rounded-2xl p-3 border border-white/10 flex flex-col gap-2">
+        <span class="text-xs font-extrabold text-emerald-300 uppercase tracking-wider">
+          🟢 OPTION 1: EMBED ANY SPOTIFY TRACK OR PLAYLIST
+        </span>
+        <p class="text-xs text-slate-300 leading-snug">
+          Paste any Spotify song or playlist link below to dock a live <b>Spotify Mini-Player</b> right at the top of the stage, or play Spotify/Apple Music in the background on your iPhone!
+        </p>
+        <div class="flex items-center gap-1.5">
+          <input id="spotifyUrlInput" type="text" placeholder="Paste Spotify song/playlist link..."
+                 class="flex-1 bg-slate-950/90 text-white text-xs rounded-xl px-3 py-2 border border-white/15 outline-none focus:border-emerald-400 select-text"
+                 style="user-select: text; -webkit-user-select: text;" />
+          <button id="loadSpotifyEmbedBtn" class="ui-btn rounded-xl px-3 py-2 text-xs font-extrabold bg-emerald-500/35 text-emerald-100 border border-emerald-400 shrink-0">
+            DOCK 🟢
+          </button>
+        </div>
+        <button id="bgMusicModeBtn" class="ui-btn rounded-xl py-2 px-3 text-xs font-extrabold bg-cyan-500/20 text-cyan-200 border border-cyan-400/40 w-full">
+          🔊 GAME SYNTH AUDIO: ON (TAP TO MUTE FOR BACKGROUND SPOTIFY / APPLE MUSIC)
+        </button>
+      </div>
+
+      <!-- 2. How Singing Works + Room Mic Sync -->
+      <div class="bg-white/5 rounded-2xl p-3 border border-white/10 flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold text-rose-300 uppercase tracking-wider">🎙️ OPTION 2: LIVE SINGING & ROOM MIC</span>
+          <button id="modalMicToggleBtn" class="ui-btn rounded-full px-3 py-1 text-xs font-bold bg-rose-500/30 text-rose-100 border border-rose-400">
+            TURN MIC ON
+          </button>
+        </div>
+        <p class="text-xs text-slate-300 leading-snug">
+          • <b>Sing or Hum:</b> Displays your live vocal note inside the 3D <b>ANUBAYN Δ</b> portal and bends the liquid chrome.<br/>
+          • <b>Vocal Star Power:</b> Belt out a note to trigger <b>2x Points</b> and auto-catch incoming notes!<br/>
+          • <i>iPhone Tip:</i> iOS pauses background apps when the mic is active—use Mic Mode when singing out loud or when music is playing on a speaker in the room.
+        </p>
+      </div>
+
+      <!-- 3. Load Any Audio File / Voice Memo from iPhone -->
+      <button id="modalLoadMp3Btn" class="ui-btn rounded-2xl py-2.5 px-3 text-xs font-extrabold bg-amber-500/25 text-amber-200 border border-amber-400/50 w-full">
+        📂 OPTION 3: LOAD MP3 / WAV / VOICE MEMO FROM IPHONE FILES
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /*************************************************************************
+     * 1. MONOLITHIC, SEAMLESS 3D ANUBAYN Δ SYMBOL GEOMETRY (From IMG_6149)
+     *    - Single continuous 10-vertex closed polygon (ZERO internal seam lines!)
+     *************************************************************************/
+    const DELTA_MONOLITH_VERTS = [
+      [ 0.00,  0.92], // 0: Outer Top Apex
+      [ 0.88, -0.76], // 1: Outer Bottom-Right Corner
+      [ 0.25, -0.76], // 2: Inner Bottom-Right Portal Tip (lower)
+      [ 0.34, -0.57], // 3: Inner Bottom-Right Portal Tip (angled bevel!)
+      [ 0.56, -0.57], // 4: Inner Bottom-Right Corner
+      [ 0.00,  0.50], // 5: Inner Top Apex
+      [-0.56, -0.57], // 6: Inner Bottom-Left Corner
+      [-0.34, -0.57], // 7: Inner Bottom-Left Portal Tip (angled bevel!)
+      [-0.25, -0.76], // 8: Inner Bottom-Left Portal Tip (lower)
+      [-0.88, -0.76]  // 9: Outer Bottom-Left Corner
+    ];
+
+    // The 7 Custom 3D Sculpted A-N-U-B-A-Y-N Fret Keys at the bottom of the Highway (From IMG_6150)
+    const ANUBAYN_KEYS = [
+      {
+        char: 'A',
+        color: '#22d3ee',
+        strokes: [[[0.16, 0.46], [-0.46, 0.46], [0.00, -0.48], [0.46, 0.46]]]
+      },
+      {
+        char: 'N',
+        color: '#f472b6',
+        strokes: [[[-0.38, 0.46], [-0.38, -0.46], [0.38, 0.46], [0.38, -0.46]]]
+      },
+      {
+        char: 'U',
+        color: '#fbbf24',
+        strokes: [[[-0.38, -0.46], [-0.38, 0.25], [-0.22, 0.46], [0.22, 0.46], [0.38, 0.25], [0.38, -0.46]]]
+      },
+      {
+        char: 'B',
+        color: '#34d399',
+        strokes: [
+          [[-0.38, -0.46], [0.24, -0.46], [0.40, -0.32], [0.40, -0.12], [0.24, -0.02], [-0.08, -0.02]],
+          [[-0.38, -0.02], [-0.38, 0.46], [0.26, 0.46], [0.42, 0.32], [0.42, 0.10], [0.24, -0.02]]
+        ]
+      },
+      {
+        char: 'A',
+        color: '#fb7185',
+        strokes: [[[-0.46, 0.46], [0.00, -0.48], [0.46, 0.46], [-0.16, 0.46]]]
+      },
+      {
+        char: 'Y',
+        color: '#a78bfa',
+        strokes: [
+          [[-0.42, -0.46], [0.00, 0.02], [0.42, -0.46]],
+          [[0.00, 0.02], [0.00, 0.46]]
+        ]
+      },
+      {
+        char: 'N',
+        color: '#38bdf8',
+        strokes: [[[-0.38, 0.46], [-0.38, -0.46], [0.38, 0.46], [0.38, -0.46]]]
+      }
+    ];
+
+    const logoShards = [];
+    const shardColors = ['#22d3ee', '#f472b6', '#fbbf24', '#34d399', '#fb7185', '#a78bfa', '#ffffff'];
+    for (let i = 0; i < DELTA_MONOLITH_VERTS.length; i++) {
+      const p0 = DELTA_MONOLITH_VERTS[i];
+      const p1 = DELTA_MONOLITH_VERTS[(i + 1) % DELTA_MONOLITH_VERTS.length];
+      for (let k = 0; k < 160; k++) {
+        const t = k / 160;
+        const hx = p0[0] + (p1[0] - p0[0]) * t + (Math.random() - 0.5) * 0.10;
+        const hy = p0[1] + (p1[1] - p0[1]) * t + (Math.random() - 0.5) * 0.10;
+        const hz = (Math.random() - 0.5) * 0.36;
+        logoShards.push({
+          hx, hy, hz,
+          x: hx, y: hy, z: hz,
+          vx: 0, vy: 0, vz: 0,
+          size: 1.8 + Math.random() * 3.0,
+          rot: Math.random() * Math.PI * 2,
+          vrot: (Math.random() - 0.5) * 0.14,
+          color: shardColors[(i + k) % shardColors.length]
+        });
+      }
+    }
+
+    /*************************************************************************
+     * 2. DIFFICULTY LEVELS (EASY / MEDIUM / HARD) & PAUSE STATE
+     *************************************************************************/
+    const DIFFICULTIES = [
+      {
+        name: '🟢 EASY',
+        cls: 'ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-emerald-500/25 text-emerald-200 border border-emerald-400/50',
+        noteSpeed: 0.25,
+        spawnEverySteps: 4,
+        hitWindow: 0.28,
+        laneAssist: 1
+      },
+      {
+        name: '🟡 MEDIUM',
+        cls: 'ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-amber-500/25 text-amber-200 border border-amber-400/50',
+        noteSpeed: 0.36,
+        spawnEverySteps: 2,
+        hitWindow: 0.22,
+        laneAssist: 1
+      },
+      {
+        name: '🔴 HARD',
+        cls: 'ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-rose-500/30 text-rose-200 border border-rose-400/60',
+        noteSpeed: 0.50,
+        spawnEverySteps: 2,
+        hitWindow: 0.17,
+        laneAssist: 0
+      }
+    ];
+
+    let diffIdx = 0; // EASY by default
+    let isPaused = false;
+    let muteSynthForExternalMusic = false;
+
+    const diffBtn = document.getElementById('diffBtn');
+    diffBtn.addEventListener('click', () => {
+      diffIdx = (diffIdx + 1) % DIFFICULTIES.length;
+      const d = DIFFICULTIES[diffIdx];
+      diffBtn.textContent = d.name;
+      diffBtn.className = d.cls;
+      showCenterCallout(`LEVEL: ${d.name}`, '#34d399');
+    });
+
+    const pauseBtn = document.getElementById('pauseBtn');
+    function setPaused(val) {
+      isPaused = val;
+      pauseBtn.textContent = isPaused ? '▶ RESUME' : '⏸ PAUSE';
+      pauseBtn.className = isPaused
+        ? 'ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-emerald-500/35 text-emerald-100 border border-emerald-400'
+        : 'ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold bg-white/10 text-white border border-white/20';
+      if (isCustomSongPlaying) {
+        if (isPaused) songAudio.pause();
+        else songAudio.play().catch(() => {});
+      }
+    }
+    pauseBtn.addEventListener('click', () => setPaused(!isPaused));
+
+    /*************************************************************************
+     * 3. AUDIO ENGINE, SPOTIFY EMBED & LIVE MIC SING-ALONG
+     *************************************************************************/
+    const VIBES = [
+      {
+        name: '🎵 PLAYA',
+        bpm: 118,
+        root: 45,
+        laneNotes: [57, 60, 62, 64, 67, 69, 72],
+        bgTop: '#050210',
+        bgMid: '#180736',
+        accent1: '#22d3ee',
+        accent2: '#e879f9'
+      },
+      {
+        name: '🎸 ROCK',
+        bpm: 114,
+        root: 40,
+        laneNotes: [52, 55, 57, 59, 62, 64, 67],
+        bgTop: '#160314',
+        bgMid: '#3b0729',
+        accent1: '#fbbf24',
+        accent2: '#f43f5e'
+      },
+      {
+        name: '⚡ CYBER',
+        bpm: 128,
+        root: 41,
+        laneNotes: [53, 54, 58, 60, 61, 65, 68],
+        bgTop: '#021019',
+        bgMid: '#0b2942',
+        accent1: '#34d399',
+        accent2: '#38bdf8'
+      },
+      {
+        name: '🌌 COSMIC',
+        bpm: 98,
+        root: 43,
+        laneNotes: [55, 57, 59, 62, 64, 67, 71],
+        bgTop: '#080420',
+        bgMid: '#24104f',
+        accent1: '#a78bfa',
+        accent2: '#67e8f9'
+      }
+    ];
+
+    let vibeIdx = 0;
+    let audioCtx = null;
+    let masterGain = null;
+    let analyser = null;
+    let micAnalyser = null;
+    let micStream = null;
+    let isMicActive = false;
+    let isMusicStarted = false;
+    let detectedVocalNote = '';
+    let vocalStarPower = 0;
+
+    const songAudio = new Audio();
+    songAudio.crossOrigin = 'anonymous';
+    let songMediaSource = null;
+    let isCustomSongPlaying = false;
+
+    let soloOsc1 = null, soloOsc2 = null, soloFilter = null, soloGain = null;
+    let isTouchingLogo = false;
+
+    function midiToFreq(m) {
+      return 440 * Math.pow(2, (m - 69) / 12);
+    }
+
+    function ensureAudioStarted() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AC();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.85;
+
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 512;
+        analyser.smoothingTimeConstant = 0.78;
+
+        masterGain.connect(analyser);
+        analyser.connect(audioCtx.destination);
+
+        nextBeatStepTime = audioCtx.currentTime + 0.05;
+        setInterval(backingGrooveScheduler, 25);
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      isMusicStarted = true;
+    }
+
+    function playLetterHitSound(laneIdx, isNoteHit = true) {
+      ensureAudioStarted();
+      if (muteSynthForExternalMusic) return;
+      const now = audioCtx.currentTime;
+      const vibe = VIBES[vibeIdx];
+      const freq = midiToFreq(vibe.laneNotes[laneIdx]);
+
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const filt = audioCtx.createBiquadFilter();
+      const gain = audioCtx.createGain();
+
+      osc1.type = vibeIdx === 1 ? 'sawtooth' : 'triangle';
+      osc2.type = 'sawtooth';
+      osc1.frequency.setValueAtTime(freq, now);
+      osc2.frequency.setValueAtTime(freq * 1.006, now);
+
+      filt.type = 'lowpass';
+      filt.frequency.setValueAtTime(isNoteHit ? 4600 : 2600, now);
+      filt.frequency.exponentialRampToValueAtTime(420, now + 0.34);
+      filt.Q.value = 3.2;
+
+      gain.gain.setValueAtTime(isNoteHit ? 0.32 : 0.20, now);
+      gain.gain.exponentialRampToValueAtTime(0.003, now + 0.36);
+
+      osc1.connect(filt);
+      osc2.connect(filt);
+      filt.connect(gain);
+      gain.connect(masterGain);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.37);
+      osc2.stop(now + 0.37);
+    }
+
+    let grooveStep = 0;
+    let nextBeatStepTime = 0;
+    const EASY_LANE_WALK = [0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 3, 4, 2, 3];
+
+    function backingGrooveScheduler() {
+      if (!audioCtx || !isMusicStarted || isPaused) return;
+      const vibe = VIBES[vibeIdx];
+      const diff = DIFFICULTIES[diffIdx];
+      const stepDur = (60.0 / vibe.bpm) / 4;
+
+      if (nextBeatStepTime < audioCtx.currentTime) {
+        nextBeatStepTime = audioCtx.currentTime + 0.02;
+      }
+
+      while (nextBeatStepTime < audioCtx.currentTime + 0.08) {
+        const s = grooveStep % 16;
+
+        if (!isCustomSongPlaying && !muteSynthForExternalMusic) {
+          if (s % 4 === 0) {
+            const kOsc = audioCtx.createOscillator();
+            const kGain = audioCtx.createGain();
+            kOsc.type = 'sine';
+            kOsc.frequency.setValueAtTime(135, nextBeatStepTime);
+            kOsc.frequency.exponentialRampToValueAtTime(38, nextBeatStepTime + 0.16);
+            kGain.gain.setValueAtTime(0.72, nextBeatStepTime);
+            kGain.gain.exponentialRampToValueAtTime(0.001, nextBeatStepTime + 0.30);
+            kOsc.connect(kGain);
+            kGain.connect(masterGain);
+            kOsc.start(nextBeatStepTime);
+            kOsc.stop(nextBeatStepTime + 0.32);
+            bassEnergy = Math.min(1.5, bassEnergy + 0.6);
+          }
+
+          if (s === 4 || s === 12) {
+            const bufSize = Math.floor(audioCtx.sampleRate * 0.14);
+            const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+            const data = buf.getChannelData(0);
+            for (let i = 0; i < bufSize; i++) {
+              data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.04));
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buf;
+            const bp = audioCtx.createBiquadFilter();
+            bp.type = 'bandpass';
+            bp.frequency.setValueAtTime(1500, nextBeatStepTime);
+            const nGain = audioCtx.createGain();
+            nGain.gain.setValueAtTime(0.32, nextBeatStepTime);
+            nGain.gain.exponentialRampToValueAtTime(0.005, nextBeatStepTime + 0.14);
+            noise.connect(bp);
+            bp.connect(nGain);
+            nGain.connect(masterGain);
+            noise.start(nextBeatStepTime);
+          }
+
+          if (s % 2 === 1 || s === 6 || s === 14) {
+            const bOsc = audioCtx.createOscillator();
+            const bFilt = audioCtx.createBiquadFilter();
+            const bGain = audioCtx.createGain();
+            const noteOffset = (s === 6 || s === 14) ? 7 : 0;
+            bOsc.type = 'sawtooth';
+            bOsc.frequency.setValueAtTime(midiToFreq(vibe.root + noteOffset), nextBeatStepTime);
+            bFilt.type = 'lowpass';
+            bFilt.frequency.setValueAtTime(900, nextBeatStepTime);
+            bFilt.frequency.exponentialRampToValueAtTime(130, nextBeatStepTime + 0.15);
+            bGain.gain.setValueAtTime(0.25, nextBeatStepTime);
+            bGain.gain.exponentialRampToValueAtTime(0.005, nextBeatStepTime + 0.16);
+            bOsc.connect(bFilt);
+            bFilt.connect(bGain);
+            bGain.connect(masterGain);
+            bOsc.start(nextBeatStepTime);
+            bOsc.stop(nextBeatStepTime + 0.17);
+          }
+        }
+
+        // Spawn Highway Notes smoothly (even when muted for Spotify/Apple Music!)
+        if (!isCustomSongPlaying && (s % diff.spawnEverySteps === 0)) {
+          const walkIdx = Math.floor(grooveStep / diff.spawnEverySteps) % EASY_LANE_WALK.length;
+          const lane = EASY_LANE_WALK[walkIdx];
+          spawnHighwayNote(lane);
+          if (diffIdx === 2 && s === 0) {
+            spawnHighwayNote((lane + 2) % 7);
+          }
+          if (muteSynthForExternalMusic && s % 4 === 0) {
+            bassEnergy = Math.min(1.4, bassEnergy + 0.45);
+          }
+        }
+
+        nextBeatStepTime += stepDur;
+        grooveStep++;
+      }
+    }
+
+    function startLogoSolo(nx, ny) {
+      ensureAudioStarted();
+      if (muteSynthForExternalMusic) {
+        isTouchingLogo = true;
+        return;
+      }
+      if (!soloOsc1) {
+        soloOsc1 = audioCtx.createOscillator();
+        soloOsc2 = audioCtx.createOscillator();
+        soloFilter = audioCtx.createBiquadFilter();
+        soloGain = audioCtx.createGain();
+
+        soloOsc1.type = 'sawtooth';
+        soloOsc2.type = 'triangle';
+        soloFilter.type = 'bandpass';
+        soloFilter.Q.value = 4.2;
+        soloGain.gain.value = 0.0001;
+
+        soloOsc1.connect(soloFilter);
+        soloOsc2.connect(soloFilter);
+        soloFilter.connect(soloGain);
+        soloGain.connect(masterGain);
+
+        soloOsc1.start();
+        soloOsc2.start();
+      }
+      isTouchingLogo = true;
+      updateLogoSolo(nx, ny);
+    }
+
+    function updateLogoSolo(nx, ny) {
+      if (!audioCtx || !soloOsc1 || !isTouchingLogo || muteSynthForExternalMusic) return;
+      const vibe = VIBES[vibeIdx];
+      const idx = Math.max(0, Math.min(6, Math.floor(((nx + 1) * 0.5) * 7)));
+      const freq = midiToFreq(vibe.laneNotes[idx] + 12 + nx * 1.2);
+      const now = audioCtx.currentTime;
+      soloOsc1.frequency.setTargetAtTime(freq, now, 0.02);
+      soloOsc2.frequency.setTargetAtTime(freq * 0.502, now, 0.02);
+      soloFilter.frequency.setTargetAtTime(600 + Math.max(0, 1 - ny) * 1800, now, 0.03);
+      soloGain.gain.setTargetAtTime(0.28, now, 0.02);
+    }
+
+    function stopLogoSolo() {
+      isTouchingLogo = false;
+      if (audioCtx && soloGain) {
+        soloGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.06);
+      }
+    }
+
+    // Autocorrelation Vocal Pitch Detector
+    const micFloatBuf = new Float32Array(1024);
+    function detectSingingPitch(sampleRate) {
+      if (!micAnalyser) return null;
+      micAnalyser.getFloatTimeDomainData(micFloatBuf);
+      let rms = 0;
+      for (let i = 0; i < micFloatBuf.length; i++) rms += micFloatBuf[i] * micFloatBuf[i];
+      rms = Math.sqrt(rms / micFloatBuf.length);
+      if (rms < 0.025) return null;
+
+      const minLag = Math.floor(sampleRate / 850);
+      const maxLag = Math.floor(sampleRate / 85);
+      let bestLag = -1, bestCorr = 0;
+      for (let lag = minLag; lag <= maxLag; lag += 2) {
+        let corr = 0;
+        for (let i = 0; i < 400; i += 2) {
+          corr += micFloatBuf[i] * micFloatBuf[i + lag];
+        }
+        if (corr > bestCorr) {
+          bestCorr = corr;
+          bestLag = lag;
+        }
+      }
+      if (bestLag > 0) {
+        const freq = sampleRate / bestLag;
+        const midi = Math.round(69 + 12 * Math.log2(freq / 440));
+        const names = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+        const note = names[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
+        return { note, freq, rms, midi };
+      }
+      return null;
+    }
+
+    // Microphone & Music Hub Controls
+    const micQuickBtn = document.getElementById('micQuickBtn');
+    const modalMicToggleBtn = document.getElementById('modalMicToggleBtn');
+
+    async function toggleMicrophone() {
+      ensureAudioStarted();
+      if (isMicActive) {
+        if (micStream) micStream.getTracks().forEach(t => t.stop());
+        isMicActive = false;
+        detectedVocalNote = '';
+        micQuickBtn.textContent = '🎙️ SING';
+        micQuickBtn.className = 'ui-btn rounded-full px-2.5 py-1 text-xs font-bold text-rose-200 border border-rose-400/40 bg-rose-500/15';
+        modalMicToggleBtn.textContent = 'TURN MIC ON';
+        return;
+      }
+      try {
+        micStream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+        });
+        const src = audioCtx.createMediaStreamSource(micStream);
+        micAnalyser = audioCtx.createAnalyser();
+        micAnalyser.fftSize = 1024;
+        src.connect(micAnalyser);
+        isMicActive = true;
+        micQuickBtn.textContent = '🎙️ SING: ON';
+        micQuickBtn.className = 'ui-btn rounded-full px-2.5 py-1 text-xs font-extrabold text-white border border-rose-300 bg-rose-500/45 shadow-[0_0_12px_#f43f5e]';
+        modalMicToggleBtn.textContent = '🎙️ MIC IS ACTIVE';
+        showCenterCallout('🎙️ SING TO TRIGGER VOCAL STAR POWER!', '#f43f5e');
+      } catch (e) {
+        showCenterCallout('⚠️ ENABLE MIC PERMISSION IN SAFARI', '#fbbf24');
+      }
+    }
+
+    micQuickBtn.addEventListener('click', toggleMicrophone);
+    modalMicToggleBtn.addEventListener('click', toggleMicrophone);
+
+    const vibeBtn = document.getElementById('vibeBtn');
+    vibeBtn.addEventListener('click', () => {
+      ensureAudioStarted();
+      vibeIdx = (vibeIdx + 1) % VIBES.length;
+      vibeBtn.textContent = VIBES[vibeIdx].name;
+      screenFlash = 0.45;
+      explodeLogoShards(0.2);
+    });
+
+    const musicModal = document.getElementById('musicModal');
+    document.getElementById('musicHubBtn').addEventListener('click', () => {
+      setPaused(true);
+      musicModal.classList.remove('hidden');
+    });
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      musicModal.classList.add('hidden');
+      setPaused(false);
+    });
+
+    // Spotify Link Parser & Embed Dock
+    const spotifyUrlInput = document.getElementById('spotifyUrlInput');
+    const loadSpotifyEmbedBtn = document.getElementById('loadSpotifyEmbedBtn');
+    const spotifyDock = document.getElementById('spotifyDock');
+    const spotifyIframe = document.getElementById('spotifyIframe');
+    const bgMusicModeBtn = document.getElementById('bgMusicModeBtn');
+
+    function setBgMuteMode(val) {
+      muteSynthForExternalMusic = val;
+      bgMusicModeBtn.textContent = muteSynthForExternalMusic
+        ? '🔇 GAME SYNTH MUTED (READY FOR SPOTIFY / APPLE MUSIC!)'
+        : '🔊 GAME SYNTH AUDIO: ON (TAP TO MUTE FOR SPOTIFY / APPLE MUSIC)';
+      bgMusicModeBtn.className = muteSynthForExternalMusic
+        ? 'ui-btn rounded-xl py-2 px-3 text-xs font-extrabold bg-emerald-500/35 text-emerald-100 border border-emerald-400 w-full'
+        : 'ui-btn rounded-xl py-2 px-3 text-xs font-extrabold bg-cyan-500/20 text-cyan-200 border border-cyan-400/40 w-full';
+    }
+
+    bgMusicModeBtn.addEventListener('click', () => setBgMuteMode(!muteSynthForExternalMusic));
+
+    loadSpotifyEmbedBtn.addEventListener('click', () => {
+      ensureAudioStarted();
+      const raw = spotifyUrlInput.value.trim();
+      let embedUrl = 'https://open.spotify.com/embed/playlist/37i9dQZF1DX6J5NfMJS675?utm_source=generator&theme=0';
+      const match = raw.match(/spotify\.com\/(track|album|playlist|artist)\/([a-zA-Z0-9]+)/);
+      if (match) {
+        embedUrl = `https://open.spotify.com/embed/${match[1]}/${match[2]}?utm_source=generator&theme=0`;
+      }
+      spotifyIframe.src = embedUrl;
+      spotifyDock.classList.remove('hidden');
+      setBgMuteMode(true);
+      musicModal.classList.add('hidden');
+      setPaused(false);
+      showCenterCallout('🟢 TAP PLAY ON THE SPOTIFY BAR ABOVE!', '#34d399');
+    });
+
+    document.getElementById('closeSpotifyDockBtn').addEventListener('click', () => {
+      spotifyDock.classList.add('hidden');
+      spotifyIframe.src = '';
+      setBgMuteMode(false);
+    });
+
+    const mp3Input = document.getElementById('mp3Input');
+    document.getElementById('modalLoadMp3Btn').addEventListener('click', () => mp3Input.click());
+    mp3Input.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      ensureAudioStarted();
+      setBgMuteMode(false);
+      songAudio.src = URL.createObjectURL(file);
+      songAudio.load();
+      if (!songMediaSource) {
+        songMediaSource = audioCtx.createMediaElementSource(songAudio);
+        songMediaSource.connect(masterGain);
+      }
+      musicModal.classList.add('hidden');
+      setPaused(false);
+      songAudio.play().then(() => {
+        isCustomSongPlaying = true;
+        showCenterCallout(`🎵 PLAYING: ${file.name.toUpperCase()}`, '#fbbf24');
+      }).catch(() => {});
+    });
+
+    /*************************************************************************
+     * 4. GUITAR HERO HIGHWAY & FORGIVING MAGNETIC LANE ASSIST
+     *************************************************************************/
+    const highwayNotes = [];
+    const hitParticles = [];
+    const laneBeams = [0, 0, 0, 0, 0, 0, 0];
+    const keyBounce = [0, 0, 0, 0, 0, 0, 0];
+
+    let score = 0;
+    let streak = 0;
+    let multiplier = 1;
+    let calloutText = '';
+    let calloutAlpha = 0;
+    let calloutColor = '#22d3ee';
+
+    function showCenterCallout(txt, col) {
+      calloutText = txt;
+      calloutAlpha = 1.0;
+      calloutColor = col || '#22d3ee';
+    }
+
+    function spawnHighwayNote(lane) {
+      highwayNotes.push({
+        lane,
+        progress: 0.0,
+        hit: false,
+        color: ANUBAYN_KEYS[lane].color
+      });
+    }
+
+    function triggerLaneKey(tappedLane) {
+      ensureAudioStarted();
+      if (isPaused) return;
+
+      const diff = DIFFICULTIES[diffIdx];
+      let hitNote = null;
+      let bestDist = 999;
+
+      for (let i = 0; i < highwayNotes.length; i++) {
+        const n = highwayNotes[i];
+        if (!n.hit && Math.abs(n.lane - tappedLane) <= diff.laneAssist) {
+          const d = Math.abs(n.progress - 1.0);
+          if (d <= diff.hitWindow && d < bestDist) {
+            bestDist = d;
+            hitNote = n;
+          }
+        }
+      }
+
+      const activeLane = hitNote ? hitNote.lane : tappedLane;
+      keyBounce[activeLane] = 1.0;
+      laneBeams[activeLane] = 1.0;
+      const keyPos = getLaneScreenPos(activeLane, 1.0);
+
+      if (hitNote) {
+        hitNote.hit = true;
+        streak++;
+        const vocalBonus = vocalStarPower > 0.25 ? 2 : 1;
+        multiplier = Math.min(8, (1 + Math.floor(streak / 5)) * vocalBonus);
+        const pts = (bestDist < 0.10 ? 200 : 120) * multiplier;
+        score += pts;
+
+        showCenterCallout(
+          vocalBonus > 1 ? `🎙️ VOCAL 2X HIT +${pts}` : (bestDist < 0.10 ? `⚡ PERFECT +${pts}` : `🔥 NICE +${pts}`),
+          ANUBAYN_KEYS[activeLane].color
+        );
+
+        playLetterHitSound(activeLane, true);
+        spawnKeyExplosion(keyPos.x, keyPos.y, ANUBAYN_KEYS[activeLane].color, 24);
+        logoRipple = Math.min(1.5, logoRipple + 0.4);
+      } else {
+        playLetterHitSound(tappedLane, false);
+        spawnKeyExplosion(keyPos.x, keyPos.y, ANUBAYN_KEYS[tappedLane].color, 8);
+        logoRipple = Math.min(1.1, logoRipple + 0.15);
+      }
+
+      document.getElementById('scoreDisplay').textContent = score.toLocaleString();
+      document.getElementById('comboBadge').textContent = `${multiplier}x`;
+    }
+
+    function spawnKeyExplosion(sx, sy, color, count) {
+      for (let i = 0; i < count; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 2 + Math.random() * 8.5;
+        hitParticles.push({
+          x: sx,
+          y: sy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 2.2,
+          size: 2.5 + Math.random() * 3.8,
+          alpha: 1.0,
+          color: i % 3 === 0 ? '#ffffff' : color
+        });
+      }
+    }
+
+    function explodeLogoShards(strength = 0.25) {
+      logoShards.forEach(s => {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = (0.05 + Math.random() * 0.20) * (strength / 0.25);
+        s.vx += Math.cos(ang) * spd;
+        s.vy += Math.sin(ang) * spd;
+        s.vz += (Math.random() - 0.5) * 0.25;
+      });
+    }
+
+    /*************************************************************************
+     * 5. CANVAS LAYOUT & SEAMLESS MONOLITHIC 3D Δ LOGO RENDERER
+     *************************************************************************/
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function getLaneScreenPos(laneIdx, progress) {
+      const normLane = (laneIdx - 3) / 3;
+      const topY = height * 0.42;
+      const botY = height * 0.85;
+      const p = Math.pow(Math.max(0, progress), 1.55);
+      const y = topY + p * (botY - topY);
+
+      const topSpread = Math.min(width * 0.15, 105);
+      const botSpread = Math.min(width * 0.44, 340);
+      const spread = topSpread + p * (botSpread - topSpread);
+      const x = width * 0.5 + normLane * spread;
+      const scale = 0.30 + p * 0.70;
+      return { x, y, scale };
+    }
+
+    let isPointerDown = false;
+    let lastTouchedLane = -1;
+    let logoRotX = 0.08, logoRotY = 0.0;
+    let targetLogoRotX = 0.08, targetLogoRotY = 0.0;
+    let logoTouchNX = 0, logoTouchNY = 0;
+    let logoRipple = 0;
+    let logoShatterFactor = 0;
+    let screenFlash = 0;
+
+    function handleStagePointer(clientX, clientY, isNewTap) {
+      ensureAudioStarted();
+      if (isPaused) return;
+
+      if (clientY > height * 0.54) {
+        stopLogoSolo();
+        const botSpread = Math.min(width * 0.44, 340);
+        const relX = (clientX - width * 0.5) / botSpread;
+        const laneIdx = Math.max(0, Math.min(6, Math.round((relX * 3) + 3)));
+
+        if (isNewTap || laneIdx !== lastTouchedLane) {
+          lastTouchedLane = laneIdx;
+          triggerLaneKey(laneIdx);
+        }
+        return;
+      }
+
+      lastTouchedLane = -1;
+      const nx = (clientX / width) * 2 - 1;
+      const ny = -((clientY / (height * 0.52)) * 2 - 1);
+      logoTouchNX = nx;
+      logoTouchNY = ny;
+
+      targetLogoRotY = nx * 0.78;
+      targetLogoRotX = -ny * 0.45;
+      logoRipple = Math.min(1.8, logoRipple + 0.35);
+
+      if (isNewTap) {
+        startLogoSolo(nx, ny);
+        explodeLogoShards(0.18);
+        logoShatterFactor = Math.min(1.0, logoShatterFactor + 0.52);
+      } else {
+        updateLogoSolo(nx, ny);
+        logoShatterFactor = Math.min(1.0, logoShatterFactor + 0.07);
+      }
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      isPointerDown = true;
+      handleStagePointer(e.clientX, e.clientY, true);
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!isPointerDown) return;
+      handleStagePointer(e.clientX, e.clientY, false);
+    });
+    function endPointer() {
+      isPointerDown = false;
+      lastTouchedLane = -1;
+      stopLogoSolo();
+    }
+    window.addEventListener('pointerup', endPointer);
+    window.addEventListener('pointercancel', endPointer);
+
+    let bassEnergy = 0, midEnergy = 0, highEnergy = 0;
+    const freqData = new Uint8Array(256);
+    const micData = new Uint8Array(256);
+
+    function projectDelta3D(wx, wy, wz, time) {
+      const wave = logoRipple * 0.16 + midEnergy * 0.14 + vocalStarPower * 0.20;
+      if (wave > 0.005) {
+        const d = Math.hypot(wx - logoTouchNX, wy - logoTouchNY);
+        wz += Math.sin(d * 4.5 - time * 10.0) * wave;
+        wx += Math.cos(wy * 3.5 + time * 7.5) * wave * 0.12;
+      }
+
+      const cosY = Math.cos(logoRotY), sinY = Math.sin(logoRotY);
+      const x1 = wx * cosY - wz * sinY;
+      const z1 = wz * cosY + wx * sinY;
+
+      const cosX = Math.cos(logoRotX), sinX = Math.sin(logoRotX);
+      const y2 = wy * cosX - z1 * sinX;
+      const z2 = z1 * cosX + wy * sinX;
+
+      const camDist = 3.8;
+      const fov = Math.min(width, height * 0.68) * 0.56;
+      const depth = Math.max(0.9, camDist - z2);
+      const scale = fov / depth;
+
+      const dockOpen = !spotifyDock.classList.contains('hidden');
+      const logoCenterY = dockOpen ? height * 0.30 : height * 0.25;
+      return {
+        sx: width * 0.5 + x1 * scale,
+        sy: logoCenterY - y2 * scale,
+        scale,
+        z: z2
+      };
+    }
+
+    function drawMonolithic3DDelta(time, vibe) {
+      const extrudeDepth = 0.28 + bassEnergy * 0.16 + vocalStarPower * 0.15;
+      const fZ = extrudeDepth * 0.5;
+      const bZ = -extrudeDepth * 0.5;
+
+      // 1. Holographic Neon Echo Rings
+      for (let ring = 3; ring >= 1; ring--) {
+        const rScale = 1.0 + ring * 0.12 + bassEnergy * 0.08;
+        const rZ = bZ - ring * 0.22;
+        const rPts = DELTA_MONOLITH_VERTS.map(([x, y]) => projectDelta3D(x * rScale, y * rScale, rZ, time));
+        ctx.save();
+        ctx.strokeStyle = ring % 2 === 0 ? vibe.accent1 : vibe.accent2;
+        ctx.globalAlpha = (0.14 / ring) + vocalStarPower * 0.15;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        rPts.forEach((p, i) => {
+          if (i === 0) ctx.moveTo(p.sx, p.sy);
+          else ctx.lineTo(p.sx, p.sy);
+        });
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // 2. Plasma Core inside Δ Portal
+      const coreCenter = projectDelta3D(0, -0.15, 0, time);
+      const coreRadius = (26 + bassEnergy * 28 + vocalStarPower * 35) * (coreCenter.scale / 180);
+      ctx.save();
+      const coreGrad = ctx.createRadialGradient(
+        coreCenter.sx, coreCenter.sy, 2,
+        coreCenter.sx, coreCenter.sy, Math.max(8, coreRadius)
+      );
+      coreGrad.addColorStop(0, '#ffffff');
+      coreGrad.addColorStop(0.4, vocalStarPower > 0.2 ? '#f43f5e' : vibe.accent1);
+      coreGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = coreGrad;
+      ctx.beginPath();
+      ctx.arc(coreCenter.sx, coreCenter.sy, Math.max(8, coreRadius), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      const frontPts = DELTA_MONOLITH_VERTS.map(([x, y]) => projectDelta3D(x, y, fZ, time));
+      const backPts  = DELTA_MONOLITH_VERTS.map(([x, y]) => projectDelta3D(x, y, bZ, time));
+
+      // 3. 3D Extruded Bevel Side-Walls
+      ctx.save();
+      ctx.globalAlpha = Math.max(0.2, 1 - logoShatterFactor * 0.7);
+      for (let i = 0; i < frontPts.length; i++) {
+        const ni = (i + 1) % frontPts.length;
+        const wallGrad = ctx.createLinearGradient(
+          frontPts[i].sx, frontPts[i].sy,
+          backPts[ni].sx, backPts[ni].sy
+        );
+        wallGrad.addColorStop(0, i % 2 === 0 ? vibe.accent1 : vibe.accent2);
+        wallGrad.addColorStop(1, '#0f0728');
+        ctx.fillStyle = wallGrad;
+        ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
+        ctx.moveTo(frontPts[i].sx, frontPts[i].sy);
+        ctx.lineTo(frontPts[ni].sx, frontPts[ni].sy);
+        ctx.lineTo(backPts[ni].sx, backPts[ni].sy);
+        ctx.lineTo(backPts[i].sx, backPts[i].sy);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // 4. Seamless Monolithic Liquid-Chrome Front Face
+      const chromeGrad = ctx.createLinearGradient(
+        width * 0.32 + Math.sin(time * 2.4) * 90,
+        height * 0.06,
+        width * 0.68 + Math.cos(time * 1.9) * 70,
+        height * 0.42
+      );
+      chromeGrad.addColorStop(0.00, vibe.accent1);
+      chromeGrad.addColorStop(0.22, '#ffffff');
+      chromeGrad.addColorStop(0.46, '#1e1b4b');
+      chromeGrad.addColorStop(0.68, '#ffffff');
+      chromeGrad.addColorStop(0.85, vibe.accent2);
+      chromeGrad.addColorStop(1.00, '#ffffff');
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0.18, 1 - logoShatterFactor * 0.78);
+      ctx.fillStyle = chromeGrad;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2.2;
+      ctx.lineJoin = 'round';
+      ctx.shadowColor = vocalStarPower > 0.25 ? '#f43f5e' : vibe.accent1;
+      ctx.shadowBlur = 20 + bassEnergy * 24 + vocalStarPower * 25;
+
+      ctx.beginPath();
+      frontPts.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.sx, p.sy);
+        else ctx.lineTo(p.sx, p.sy);
+      });
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      if (isMicActive && detectedVocalNote) {
+        ctx.save();
+        ctx.font = '900 15px ui-monospace, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#f43f5e';
+        ctx.shadowBlur = 12;
+        ctx.fillText(`🎙️ ${detectedVocalNote}`, coreCenter.sx, coreCenter.sy + 5);
+        ctx.restore();
+      }
+    }
+
+    function draw3DFretKeyLetter(laneIdx) {
+      const def = ANUBAYN_KEYS[laneIdx];
+      const bounce = keyBounce[laneIdx];
+      const pos = getLaneScreenPos(laneIdx, 1.0);
+      const keyRadius = Math.min(width / 15.2, 36) * (1 + bounce * 0.22);
+
+      const cx = pos.x;
+      const cy = pos.y - bounce * 12;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(1, 0.58);
+      ctx.beginPath();
+      ctx.arc(0, 14, keyRadius * 1.18, 0, Math.PI * 2);
+      ctx.fillStyle = bounce > 0.1 ? def.color : 'rgba(14, 10, 30, 0.90)';
+      ctx.strokeStyle = def.color;
+      ctx.lineWidth = 2.5 + bounce * 3;
+      ctx.shadowColor = def.color;
+      ctx.shadowBlur = 12 + bounce * 24;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      const letterSize = keyRadius * 0.92;
+      const depthOffset = 5 + bounce * 5;
+
+      ctx.save();
+      ctx.strokeStyle = def.color;
+      ctx.lineWidth = Math.max(4.5, letterSize * 0.24);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.globalAlpha = 0.7;
+      def.strokes.forEach(stroke => {
+        ctx.beginPath();
+        stroke.forEach(([lx, ly], i) => {
+          const sx = cx + lx * letterSize;
+          const sy = cy + ly * letterSize + depthOffset;
+          if (i === 0) ctx.moveTo(sx, sy);
+          else ctx.lineTo(sx, sy);
+        });
+        ctx.stroke();
+      });
+      ctx.restore();
+
+      ctx.save();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = Math.max(4.0, letterSize * 0.21);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.shadowColor = def.color;
+      ctx.shadowBlur = 10 + bounce * 20;
+      def.strokes.forEach(stroke => {
+        ctx.beginPath();
+        stroke.forEach(([lx, ly], i) => {
+          const sx = cx + lx * letterSize;
+          const sy = cy + ly * letterSize;
+          if (i === 0) ctx.moveTo(sx, sy);
+          else ctx.lineTo(sx, sy);
+        });
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    /*************************************************************************
+     * 6. MAIN 60 FPS GAME & VISUALIZER LOOP
+     *************************************************************************/
+    let lastFrameTime = performance.now();
+    let lastExternalSpawnTime = 0;
+
+    function animate(now) {
+      requestAnimationFrame(animate);
+      const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
+      lastFrameTime = now;
+      const time = now * 0.001;
+      const vibe = VIBES[vibeIdx];
+      const diff = DIFFICULTIES[diffIdx];
+
+      let b = 0, m = 0, h = 0;
+      if (analyser && !isPaused) {
+        analyser.getByteFrequencyData(freqData);
+        for (let i = 0; i < 10; i++) b += freqData[i];
+        for (let i = 10; i < 65; i++) m += freqData[i];
+        for (let i = 65; i < 140; i++) h += freqData[i];
+        b /= (10 * 255);
+        m /= (55 * 255);
+        h /= (75 * 255);
+      }
+
+      if (isMicActive && micAnalyser && !isPaused) {
+        micAnalyser.getByteFrequencyData(micData);
+        let mb = 0, mm = 0, peakBin = 12, peakVal = 0;
+        for (let i = 0; i < 12; i++) mb += micData[i];
+        for (let i = 12; i < 90; i++) {
+          mm += micData[i];
+          if (micData[i] > peakVal) {
+            peakVal = micData[i];
+            peakBin = i;
+          }
+        }
+        mb /= (12 * 255);
+        mm /= (78 * 255);
+        b = Math.max(b, mb * 1.4);
+        m = Math.max(m, mm * 1.6);
+
+        const pitch = detectSingingPitch(audioCtx.sampleRate);
+        if (pitch) {
+          detectedVocalNote = pitch.note;
+          vocalStarPower = Math.min(1.0, vocalStarPower + pitch.rms * 0.45);
+          logoRipple = Math.min(1.6, logoRipple + pitch.rms * 0.4);
+
+          if (vocalStarPower > 0.45) {
+            highwayNotes.forEach(n => {
+              if (!n.hit && n.progress > 0.80 && n.progress < 1.12) {
+                triggerLaneKey(n.lane);
+              }
+            });
+          }
+        } else {
+          vocalStarPower *= 0.92;
+        }
+      } else {
+        vocalStarPower *= 0.92;
+      }
+
+      if (isCustomSongPlaying && !isPaused) {
+        const minGap = diffIdx === 0 ? 420 : (diffIdx === 1 ? 280 : 190);
+        if ((b > 0.34 || m > 0.32) && now - lastExternalSpawnTime > minGap) {
+          spawnHighwayNote(Math.floor((b * 11 + m * 17) * 7) % 7);
+          lastExternalSpawnTime = now;
+        }
+      }
+
+      bassEnergy = Math.max(b * 1.2, bassEnergy * 0.88);
+      midEnergy = Math.max(m * 1.2 + (isTouchingLogo ? 0.6 : 0), midEnergy * 0.88);
+      highEnergy = Math.max(h * 1.2, highEnergy * 0.88);
+      logoRipple *= 0.92;
+      screenFlash *= 0.90;
+
+      if (!isTouchingLogo && !isPaused) {
+        logoShatterFactor *= 0.93;
+        targetLogoRotY = Math.sin(time * 0.65) * 0.34;
+        targetLogoRotX = 0.08 + Math.cos(time * 0.48) * 0.10;
+      }
+      logoRotX += (targetLogoRotX - logoRotX) * 0.1;
+      logoRotY += (targetLogoRotY - logoRotY) * 0.1;
+
+      const bgGrad = ctx.createRadialGradient(
+        width * 0.5, height * 0.25, 10,
+        width * 0.5, height * 0.5, Math.max(width, height) * 0.9
+      );
+      bgGrad.addColorStop(0, vibe.bgMid);
+      bgGrad.addColorStop(1, vibe.bgTop);
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.save();
+      ctx.translate(width * 0.5, height * 0.25);
+      for (let i = 0; i < 12; i++) {
+        const ang = (i / 12) * Math.PI * 2 + time * 0.24;
+        ctx.strokeStyle = i % 2 === 0 ? vibe.accent1 : vibe.accent2;
+        ctx.globalAlpha = 0.07 + highEnergy * 0.22 + vocalStarPower * 0.18;
+        ctx.lineWidth = 1.5 + bassEnergy * 3;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(ang) * Math.max(width, height), Math.sin(ang) * Math.max(width, height));
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      const topLeft = getLaneScreenPos(0, 0.0);
+      const topRight = getLaneScreenPos(6, 0.0);
+      const botLeft = getLaneScreenPos(0, 1.08);
+      const botRight = getLaneScreenPos(6, 1.08);
+
+      ctx.save();
+      const hwyGrad = ctx.createLinearGradient(0, height * 0.42, 0, height * 0.90);
+      hwyGrad.addColorStop(0, 'rgba(15, 8, 36, 0.15)');
+      hwyGrad.addColorStop(0.85, 'rgba(12, 6, 28, 0.84)');
+      hwyGrad.addColorStop(1, 'rgba(6, 3, 16, 0.95)');
+      ctx.fillStyle = hwyGrad;
+      ctx.beginPath();
+      ctx.moveTo(topLeft.x - 16, topLeft.y);
+      ctx.lineTo(topRight.x + 16, topRight.y);
+      ctx.lineTo(botRight.x + 28, botRight.y);
+      ctx.lineTo(botLeft.x - 28, botLeft.y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      for (let g = 0; g < 7; g++) {
+        const prog = ((g / 7) + (isPaused ? 0 : time * diff.noteSpeed)) % 1.0;
+        const lPos = getLaneScreenPos(0, prog);
+        const rPos = getLaneScreenPos(6, prog);
+        ctx.strokeStyle = vibe.accent1;
+        ctx.globalAlpha = prog * 0.24;
+        ctx.lineWidth = 1 + prog * 1.5;
+        ctx.beginPath();
+        ctx.moveTo(lPos.x - 12 * lPos.scale, lPos.y);
+        ctx.lineTo(rPos.x + 12 * rPos.scale, rPos.y);
+        ctx.stroke();
+      }
+
+      for (let lane = 0; lane < 7; lane++) {
+        laneBeams[lane] *= 0.86;
+        keyBounce[lane] *= 0.84;
+        const pTop = getLaneScreenPos(lane, 0.0);
+        const pBot = getLaneScreenPos(lane, 1.0);
+        const col = ANUBAYN_KEYS[lane].color;
+
+        ctx.strokeStyle = col;
+        ctx.globalAlpha = 0.25 + laneBeams[lane] * 0.75;
+        ctx.lineWidth = 1.5 + laneBeams[lane] * 8;
+        ctx.shadowColor = col;
+        ctx.shadowBlur = laneBeams[lane] * 20;
+        ctx.beginPath();
+        ctx.moveTo(pTop.x, pTop.y);
+        ctx.lineTo(pBot.x, pBot.y);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      for (let i = highwayNotes.length - 1; i >= 0; i--) {
+        const n = highwayNotes[i];
+        if (!isPaused) {
+          n.progress += dt * diff.noteSpeed;
+        }
+
+        if (n.hit || n.progress > 1.22) {
+          if (!n.hit && n.progress > 1.22) {
+            streak = 0;
+            multiplier = 1;
+            document.getElementById('comboBadge').textContent = '1x';
+          }
+          highwayNotes.splice(i, 1);
+          continue;
+        }
+
+        const pos = getLaneScreenPos(n.lane, n.progress);
+        const gemW = 24 * pos.scale;
+        const gemH = 12 * pos.scale;
+
+        ctx.save();
+        ctx.translate(pos.x, pos.y);
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = n.color;
+        ctx.lineWidth = 3.8 * pos.scale;
+        ctx.shadowColor = n.color;
+        ctx.shadowBlur = 15 * pos.scale;
+
+        ctx.beginPath();
+        ctx.moveTo(0, -gemH * 1.15);
+        ctx.lineTo(gemW, gemH * 0.85);
+        ctx.lineTo(-gemW, gemH * 0.85);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      for (let lane = 0; lane < 7; lane++) {
+        draw3DFretKeyLetter(lane);
+      }
+
+      drawMonolithic3DDelta(time, vibe);
+
+      for (let i = 0; i < logoShards.length; i++) {
+        const s = logoShards[i];
+        let tx = s.hx, ty = s.hy, tz = s.hz;
+
+        if (logoShatterFactor > 0.08) {
+          const ang = i * 0.13 + time * 2.2;
+          const rad = (0.55 + (i % 9) * 0.16) * logoShatterFactor;
+          tx = s.hx * (1 - logoShatterFactor * 0.45) + Math.cos(ang) * rad;
+          ty = s.hy * (1 - logoShatterFactor * 0.45) + Math.sin(ang * 1.3) * rad;
+          tz = s.hz + Math.sin(ang) * 0.8 * logoShatterFactor;
+        }
+
+        s.vx = (s.vx + (tx - s.x) * 0.12) * 0.84;
+        s.vy = (s.vy + (ty - s.y) * 0.12) * 0.84;
+        s.vz = (s.vz + (tz - s.z) * 0.12) * 0.84;
+        s.x += s.vx;
+        s.y += s.vy;
+        s.z += s.vz;
+        s.rot += s.vrot + midEnergy * 0.14;
+
+        if (logoShatterFactor > 0.08 || (i % 5 === 0)) {
+          const p = projectDelta3D(s.x, s.y, s.z, time);
+          const sz = Math.max(1.5, (s.size * p.scale) / 260);
+          ctx.save();
+          ctx.translate(p.sx, p.sy);
+          ctx.rotate(s.rot);
+          ctx.fillStyle = s.color;
+          ctx.globalAlpha = logoShatterFactor > 0.08 ? 0.92 : (0.45 + bassEnergy * 0.4);
+          ctx.beginPath();
+          ctx.moveTo(0, -sz * 1.3);
+          ctx.lineTo(sz, sz);
+          ctx.lineTo(-sz, sz);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      for (let i = hitParticles.length - 1; i >= 0; i--) {
+        const pt = hitParticles[i];
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+        pt.vy += 0.24;
+        pt.alpha *= 0.91;
+        if (pt.alpha < 0.03) {
+          hitParticles.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.fillStyle = pt.color;
+        ctx.globalAlpha = pt.alpha;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      if (isPaused && musicModal.classList.contains('hidden')) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(4, 1, 10, 0.55)';
+        ctx.fillRect(0, 0, width, height);
+        ctx.font = '900 22px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#22d3ee';
+        ctx.shadowBlur = 16;
+        ctx.fillText('⏸ GAME PAUSED — TAP RESUME ABOVE', width * 0.5, height * 0.50);
+        ctx.restore();
+      } else if (!isMusicStarted) {
+        ctx.save();
+        ctx.font = 'bold 14px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#e2e8f0';
+        ctx.shadowColor = '#22d3ee';
+        ctx.shadowBlur = 12;
+        ctx.fillText('TAP OR SLIDE A-N-U-B-A-Y-N TO START • DRAG 3D Δ LOGO TO SOLO', width * 0.5, height * 0.50);
+        ctx.restore();
+      } else if (calloutAlpha > 0.02) {
+        calloutAlpha *= 0.94;
+        ctx.save();
+        ctx.font = '900 18px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = calloutColor;
+        ctx.globalAlpha = calloutAlpha;
+        ctx.shadowColor = calloutColor;
+        ctx.shadowBlur = 14;
+        ctx.fillText(calloutText, width * 0.5, height * 0.48);
+        ctx.restore();
+      }
+
+      if (screenFlash > 0.02) {
+        ctx.fillStyle = `rgba(255, 255, 255, ${screenFlash * 0.32})`;
+        ctx.fillRect(0, 0, width, height);
+      }
+    }
+
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
